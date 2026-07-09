@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BanG Dream! 数据分析平台</title>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      --primary: #3b82f6;
+      --primary-light: rgba(59, 130, 246, 0.1);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+    }
+    .sidebar {
+      width: 240px;
+      background: var(--bg-secondary);
+      height: 100vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+    }
+    .sidebar-header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--primary) 0%, #00ff88 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+    .sidebar-header p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .menu-group { border-bottom: 1px solid var(--border-color); }
+    .menu-group-title {
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .menu-group-title:hover { background: var(--primary-light); }
+    .menu-group-title .arrow {
+      font-size: 10px;
+      transition: transform 0.2s;
+    }
+    .menu-group-title.collapsed .arrow { transform: rotate(-90deg); }
+    .menu-group-items {
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+    .menu-group-items.collapsed { max-height: 0 !important; }
+    .menu-item {
+      padding: 10px 20px 10px 32px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-left: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .menu-item:hover { background: var(--primary-light); }
+    .menu-item.active {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-left-color: var(--primary);
+    }
+    .main-content { margin-left: 240px; min-height: 100vh; }
+    .page-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+    }
+    .page-header h2 { font-size: 18px; font-weight: 600; }
+    .page-body { padding: 24px; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card:hover { border-color: var(--primary); }
+    .card h3 { margin-bottom: 16px; font-size: 16px; font-weight: 600; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .kpi-card:hover { border-color: var(--primary); box-shadow: 0 4px 12px rgba(59,130,246,0.15); }
+    .kpi-card .label { color: var(--text-secondary); font-size: 13px; margin-bottom: 8px; }
+    .kpi-card .value { font-size: 28px; font-weight: 700; }
+    .kpi-card .change { font-size: 12px; margin-top: 12px; }
+    .change.up { color: var(--success); }
+    .change.down { color: var(--danger); }
+    .filters { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: 12px; color: var(--text-secondary); }
+    .filter-group select, .filter-group input {
+      padding: 10px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      font-size: 13px;
+      outline: none;
+    }
+    .filter-group select:focus, .filter-group input:focus { border-color: var(--primary); }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background: var(--bg-primary); color: var(--text-secondary); padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border-color); font-weight: 500; }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+    tr:hover td { background: var(--primary-light); }
+    .placeholder { text-align: center; padding: 60px; color: var(--text-secondary); }
+    .placeholder .icon { font-size: 48px; margin-bottom: 16px; }
+    .funnel { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .funnel-item { display: flex; align-items: center; gap: 16px; width: 100%; max-width: 600px; }
+    .funnel-label { width: 80px; text-align: right; font-size: 13px; color: var(--text-secondary); }
+    .funnel-bar { flex: 1; height: 36px; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; }
+    .funnel-value { font-size: 12px; font-weight: 600; }
+    .funnel-rate { width: 60px; font-size: 12px; color: var(--primary); font-weight: 500; }
+    .footer { padding: 16px 20px; border-top: 1px solid var(--border-color); font-size: 11px; color: var(--text-muted); }
+    .hidden { display: none !important; }
+    .page { animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <h1>BanG Dream!</h1>
+      <p>数据分析平台</p>
+    </div>
+    <nav id="menu"></nav>
+    <div class="footer">v1.0.0 Demo</div>
+  </div>
+
+  <div class="main-content">
+    <div class="page-header">
+      <h2 id="pageTitle">KPI 仪表盘</h2>
+    </div>
+    <div class="page-body" id="pageBody"></div>
+  </div>
+
+  <script>
+    // 页面数据配置
+    const pages = {
+      overview: { title: 'KPI 仪表盘', icon: '📊' },
+      realtime: { title: '实时数据', icon: '⚡' },
+      daily: { title: '每日数据', icon: '📅' },
+      weekly: { title: '每周数据', icon: '📆' },
+      monthly: { title: '每月数据', icon: '🗓️' },
+      region: { title: '地区对比', icon: '🌍' },
+      active: { title: '活跃', icon: '🔥' },
+      retention: { title: '留存', icon: '🧡' },
+      ltv: { title: 'LTV', icon: '💎' },
+      returning: { title: '回流用户', icon: '🔄' },
+      funnel: { title: '转化率漏斗', icon: '🎯' },
+      recharge: { title: '付费数据-充值', icon: '💳' },
+      consume: { title: '付费数据-消耗', icon: '🛒' },
+      privilege: { title: '付费数据-特权卡', icon: '💰' },
+      gacha: { title: '抽卡分析', icon: '🎰' },
+      ads: { title: '投放数据', icon: '📢' }
+    };
+
+    const menuGroups = [
+      { title: '【基础运营数据】', ids: ['overview', 'realtime', 'daily', 'weekly', 'monthly', 'region', 'active', 'retention', 'ltv', 'returning', 'funnel', 'recharge', 'consume', 'privilege', 'gacha'] },
+      { title: '【游戏玩法数据】', ids: ['placeholder1', 'placeholder2', 'placeholder3', 'card', 'event', 'anonTokyo'] },
+      { title: '【UA】数据', ids: ['ads', 'placeholderUA1', 'placeholderUA2'] }
+    ];
+
+    let collapsedGroups = {};
+    let currentPage = 'overview';
+
+    // 渲染菜单
+    function renderMenu() {
+      const menuEl = document.getElementById('menu');
+      menuEl.innerHTML = menuGroups.map((group, gi) => {
+        const isCollapsed = collapsedGroups[gi];
+        const items = group.ids.map(id => {
+          const p = pages[id] || { title: '待补充', icon: '📦' };
+          return `<div class="menu-item ${currentPage === id ? 'active' : ''}" data-page="${id}"><span>${p.icon}</span><span>${p.title}</span></div>`;
+        }).join('');
+        return `
+          <div class="menu-group">
+            <div class="menu-group-title ${isCollapsed ? 'collapsed' : ''}" data-group="${gi}">
+              <span>${group.title}</span>
+              <span class="arrow">▼</span>
+            </div>
+            <div class="menu-group-items ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? 0 : group.ids.length * 44}px">
+              ${items}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // 绑定事件
+      menuEl.querySelectorAll('.menu-group-title').forEach(el => {
+        el.onclick = () => {
+          const gi = parseInt(el.dataset.group);
+          collapsedGroups[gi] = !collapsedGroups[gi];
+          renderMenu();
+        };
+      });
+      menuEl.querySelectorAll('.menu-item').forEach(el => {
+        el.onclick = () => {
+          currentPage = el.dataset.page;
+          renderMenu();
+          renderPage();
+        };
+      });
+    }
+
+    // 生成数据
+    function genDailyData(days = 30) {
+      const data = [];
+      for (let i = 0; i < days; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - (days - 1 - i));
+        data.push({
+          date: d.toISOString().split('T')[0],
+          active: Math.floor(40000 + Math.random() * 20000),
+          new: Math.floor(2000 + Math.random() * 3000),
+          revenue: Math.floor(50000 + Math.random() * 100000),
+          paying: Math.floor(800 + Math.random() * 500)
+        });
+      }
+      return data;
+    }
+
+    function genWeeklyData(weeks = 8) {
+      const data = [];
+      for (let i = 0; i < weeks; i++) {
+        data.push({
+          week: `第${weeks - i}周`,
+          active: Math.floor(280000 + Math.random() * 100000),
+          new: Math.floor(15000 + Math.random() * 20000),
+          revenue: Math.floor(350000 + Math.random() * 500000)
+        });
+      }
+      return data.reverse();
+    }
+
+    function genMonthlyData(months = 6) {
+      const data = [];
+      for (let i = 0; i < months; i++) {
+        const d = new Date();
+        d.setMonth(d.getMonth() - (months - 1 - i));
+        data.push({
+          month: `${d.getMonth() + 1}月`,
+          active: Math.floor(1200000 + Math.random() * 400000),
+          revenue: Math.floor(1500000 + Math.random() * 2000000)
+        });
+      }
+      return data;
+    }
+
+    // 渲染页面
+    function renderPage() {
+      document.getElementById('pageTitle').textContent = pages[currentPage]?.title || '待补充';
+      const body = document.getElementById('pageBody');
+
+      const filters = `
+        <div class="filters">
+          <div class="filter-group"><label>开始时间</label><input type="date"></div>
+          <div class="filter-group"><label>结束时间</label><input type="date"></div>
+          <div class="filter-group"><label>服务器</label><select><option>全部服务器</option><option>英文地区</option><option>韩国</option><option>港澳台</option></select></div>
+          <div class="filter-group"><label>终端</label><select><option>全部</option><option>iOS</option><option>Android</option></select></div>
+          <div class="filter-group"><label>账号类型</label><select><option>全部</option><option>有效</option><option>去黑产</option></select></div>
+        </div>`;
+
+      switch (currentPage) {
+        case 'overview':
+          body.innerHTML = `
+            <div class="kpi-grid">
+              <div class="kpi-card"><div class="label">DAU</div><div class="value">115,832</div><div class="change up">↑ 8.5% 较上期</div></div>
+              <div class="kpi-card"><div class="label">今日收入</div><div class="value">¥128,560</div><div class="change up">↑ 12.3% 较上期</div></div>
+              <div class="kpi-card"><div class="label">新增用户</div><div class="value">22,156</div><div class="change up">↑ 15.8% 较上期</div></div>
+              <div class="kpi-card"><div class="label">付费率</div><div class="value">3.2%</div><div class="change down">↓ 0.5% 较上期</div></div>
+            </div>
+            <div class="card"><h3>KPI趋势</h3><p style="color:var(--text-muted)">图表组件加载中...</p></div>`;
+          break;
+
+        case 'realtime':
+          body.innerHTML = `
+            ${filters}
+            <div class="kpi-grid">
+              <div class="kpi-card"><div class="label">当前在线人数</div><div class="value">12,458</div><div class="change up">↑ 8.5%</div></div>
+              <div class="kpi-card"><div class="label">今日活跃账号</div><div class="value">45,892</div><div class="change down">↓ 3.2%</div></div>
+              <div class="kpi-card"><div class="label">今日新增账号</div><div class="value">3,256</div><div class="change up">↑ 15.8%</div></div>
+              <div class="kpi-card"><div class="label">今日实时收入</div><div class="value">¥128,560</div><div class="change up">↑ 12.3%</div></div>
+            </div>
+            <div class="card"><h3>实时在线趋势</h3><p style="color:var(--text-muted)">图表组件加载中...</p></div>`;
+          break;
+
+        case 'daily':
+          body.innerHTML = `${filters}<div class="card"><h3>日报明细</h3><table><thead><tr><th>日期</th><th>活跃账号数</th><th>新增账号数</th><th>总收入</th><th>付费账号数</th></tr></thead><tbody>${genDailyData(10).map(d => `<tr><td>${d.date}</td><td>${d.active.toLocaleString()}</td><td>${d.new.toLocaleString()}</td><td>¥${d.revenue.toLocaleString()}</td><td>${d.paying.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+          break;
+
+        case 'weekly':
+          body.innerHTML = `${filters}<div class="card"><h3>周报明细</h3><table><thead><tr><th>周</th><th>周活跃账号数</th><th>周新增账号数</th><th>周总收入</th></tr></thead><tbody>${genWeeklyData().map(d => `<tr><td>${d.week}</td><td>${d.active.toLocaleString()}</td><td>${d.new.toLocaleString()}</td><td>¥${d.revenue.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+          break;
+
+        case 'monthly':
+          body.innerHTML = `${filters}<div class="card"><h3>月报明细</h3><table><thead><tr><th>月份</th><th>月活跃账号数</th><th>月总收入</th></tr></thead><tbody>${genMonthlyData().map(d => `<tr><td>${d.month}</td><td>${d.active.toLocaleString()}</td><td>¥${d.revenue.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+          break;
+
+        case 'region':
+          body.innerHTML = `${filters}
+            <div class="card"><h3>DAU对比（最近30天）</h3><p style="color:var(--text-muted)">图表组件加载中...</p></div>
+            <div class="card"><h3>MAU对比（最近12个月）</h3><p style="color:var(--text-muted)">图表组件加载中...</p></div>`;
+          break;
+
+        case 'active':
+          body.innerHTML = `${filters}
+            <div class="card"><h3>活跃用户趋势</h3><p style="color:var(--text-muted)">图表组件加载中...</p></div>
+            <div class="card"><h3>活跃数据明细</h3><table><thead><tr><th>日期</th><th>DAU</th><th>新增用户</th></tr></thead><tbody>${genDailyData(10).map(d => `<tr><td>${d.date}</td><td>${d.active.toLocaleString()}</td><td>${d.new.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+          break;
+
+        case 'retention':
+          body.innerHTML = `${filters}
+            <div class="card"><h3>留存率明细</h3>
+              <table><thead><tr><th>日期</th><th>1留</th><th>3留</th><th>7留</th><th>14留</th><th>30留</th><th>60留</th><th>90留</th></tr></thead>
+              <tbody>
+                <tr><td>新增账号</td><td>45.2%</td><td>32.5%</td><td>25.8%</td><td>20.1%</td><td>15.2%</td><td>10.5%</td><td>7.8%</td></tr>
+                <tr><td>2026-04-19</td><td>45.2%</td><td>32.5%</td><td>25.8%</td><td>20.1%</td><td>15.2%</td><td>10.5%</td><td>7.8%</td></tr>
+                <tr><td>2026-04-18</td><td>44.8%</td><td>31.9%</td><td>25.2%</td><td>19.5%</td><td>14.8%</td><td>10.1%</td><td>-</td></tr>
+              </tbody>
+            </table></div>`;
+          break;
+
+        case 'ltv':
+          body.innerHTML = `${filters}
+            <div class="card"><h3>LTV明细</h3>
+              <table style="font-size:11px"><thead><tr><th>日期</th><th>LTV1</th><th>LTV3</th><th>LTV7</th><th>LTV14</th><th>LTV30</th><th>LTV60</th><th>LTV90</th></tr></thead>
+              <tbody>
+                <tr><td>新增账号</td><td>¥8.50</td><td>¥18.20</td><td>¥28.50</td><td>¥38.20</td><td>¥52.80</td><td>¥68.50</td><td>¥82.30</td></tr>
+                <tr><td>2026-04-19</td><td>¥8.50</td><td>¥18.20</td><td>¥28.50</td><td>¥38.20</td><td>¥52.80</td><td>¥68.50</td><td>¥82.30</td></tr>
+                <tr><td>2026-04-18</td><td>¥8.20</td><td>¥17.80</td><td>¥27.90</td><td>¥37.50</td><td>¥51.20</td><td>¥66.80</td><td>-</td></tr>
+              </tbody>
+            </table></div>`;
+          break;
+
+        case 'returning':
+          body.innerHTML = `${filters}
+            <div class="card"><h3>每日回流用户留存</h3>
+              <table style="font-size:10px"><thead><tr><th>日期</th><th>回流用户数</th><th>1留</th><th>3留</th><th>7留</th><th>14留</th><th>30留</th><th>60留</th><th>90留</th><th>180留</th><th>360留</th></tr></thead>
+              <tbody>
+                <tr><td>2026-04-19</td><td>8,500</td><td>68.5%</td><td>52.3%</td><td>42.1%</td><td>35.2%</td><td>28.5%</td><td>22.1%</td><td>18.5%</td><td>12.3%</td><td>8.5%</td></tr>
+                <tr><td>2026-04-18</td><td>8,200</td><td>67.8%</td><td>51.5%</td><td>41.5%</td><td>34.8%</td><td>28.0%</td><td>21.5%</td><td>18.0%</td><td>-</td><td>-</td></tr>
+              </tbody>
+            </table></div>
+            <div class="card"><h3>每日回流用户LTV</h3>
+              <table style="font-size:10px"><thead><tr><th>日期</th><th>回流用户数</th><th>LTV1</th><th>LTV3</th><th>LTV7</th><th>LTV14</th><th>LTV30</th><th>LTV60</th><th>LTV90</th><th>LTV180</th><th>LTV360</th></tr></thead>
+              <tbody>
+                <tr><td>2026-04-19</td><td>8,500</td><td>¥12.50</td><td>¥28.20</td><td>¥42.50</td><td>¥58.20</td><td>¥78.80</td><td>¥98.50</td><td>¥118.30</td><td>¥165.50</td><td>¥220.80</td></tr>
+              </tbody>
+            </table></div>`;
+          break;
+
+        case 'funnel':
+          body.innerHTML = `
+            <div class="card"><h3>转化率漏斗</h3>
+              <div class="funnel">
+                <div class="funnel-item"><div class="funnel-label">曝光</div><div class="funnel-bar" style="background:linear-gradient(90deg,#3b82f6 100%,#e2e8f0 100%)"><span class="funnel-value">1,000,000</span></div><div class="funnel-rate">100%</div></div>
+                <div class="funnel-item"><div class="funnel-label">点击</div><div class="funnel-bar" style="background:linear-gradient(90deg,#3b82f6 25%,#e2e8f0 25%)"><span class="funnel-value">250,000</span></div><div class="funnel-rate">25%</div></div>
+                <div class="funnel-item"><div class="funnel-label">下载</div><div class="funnel-bar" style="background:linear-gradient(90deg,#3b82f6 12.5%,#e2e8f0 12.5%)"><span class="funnel-value">125,000</span></div><div class="funnel-rate">12.5%</div></div>
+                <div class="funnel-item"><div class="funnel-label">注册</div><div class="funnel-bar" style="background:linear-gradient(90deg,#3b82f6 10%,#e2e8f0 10%)"><span class="funnel-value">100,000</span></div><div class="funnel-rate">10%</div></div>
+                <div class="funnel-item"><div class="funnel-label">活跃</div><div class="funnel-bar" style="background:linear-gradient(90deg,#3b82f6 4.5%,#e2e8f0 4.5%)"><span class="funnel-value">45,000</span></div><div class="funnel-rate">4.5%</div></div>
+                <div class="funnel-item"><div class="funnel-label">付费</div><div class="funnel-bar" style="background:linear-gradient(90deg,#3b82f6 0.25%,#e2e8f0 0.25%)"><span class="funnel-value">2,500</span></div><div class="funnel-rate">0.25%</div></div>
+              </div>
+            </div>`;
+          break;
+
+        case 'recharge':
+          body.innerHTML = `${filters}
+            <div class="card"><h3>商品销售明细数据</h3>
+              <table><thead><tr><th>日期</th><th>商品名字</th><th>商品ID</th><th>购买人数</th><th>总销量</th><th>iOS</th><th>Android</th><th>官方包</th><th>WEB</th></tr></thead>
+              <tbody>
+                <tr><td>2026-04-19</td><td>月卡(30元)</td><td>P001</td><td>4,500</td><td>135,000</td><td>81,000</td><td>40,500</td><td>9,000</td><td>4,500</td></tr>
+                <tr><td>2026-04-19</td><td>月卡(68元)</td><td>P002</td><td>3,200</td><td>217,600</td><td>130,560</td><td>65,280</td><td>13,056</td><td>8,704</td></tr>
+                <tr><td>2026-04-19</td><td>首充礼包</td><td>P003</td><td>8,500</td><td>127,500</td><td>76,500</td><td>38,250</td><td>8,500</td><td>4,250</td></tr>
+                <tr><td>2026-04-18</td><td>648钻石</td><td>P004</td><td>12,000</td><td>777,600</td><td>466,560</td><td>233,280</td><td>46,656</td><td>31,104</td></tr>
+                <tr><td>2026-04-18</td><td>328钻石</td><td>P005</td><td>8,500</td><td>278,800</td><td>167,280</td><td>83,640</td><td>16,728</td><td>11,152</td></tr>
+              </tbody>
+            </table></div>`;
+          break;
+
+        case 'consume':
+          body.innerHTML = `${filters}
+            <div class="card"><h3>消耗明细</h3>
+              <table><thead><tr><th>日期</th><th>消耗类型</th><th>消耗金额</th><th>消耗人数</th></tr></thead>
+              <tbody>
+                <tr><td>2026-04-19</td><td>体力</td><td>¥125,000</td><td>45,000</td></tr>
+                <tr><td>2026-04-19</td><td>抽卡</td><td>¥250,000</td><td>28,000</td></tr>
+                <tr><td>2026-04-19</td><td>服装</td><td>¥85,000</td><td>15,000</td></tr>
+                <tr><td>2026-04-18</td><td>体力</td><td>¥118,000</td><td>42,000</td></tr>
+              </tbody>
+            </table></div>`;
+          break;
+
+        case 'privilege':
+          body.innerHTML = `${filters}
+            <div class="card"><h3>特权卡购买明细数据</h3>
+              <table style="font-size:12px"><thead><tr><th style="padding:8px 6px">日期</th><th style="padding:8px 6px">总计充值</th><th style="padding:8px 6px">月卡</th><th style="padding:8px 6px">通行证</th><th style="padding:8px 6px">buff卡1</th><th style="padding:8px 6px">buff卡2</th><th style="padding:8px 6px">buff卡3</th><th style="padding:8px 6px">buff卡4</th><th style="padding:8px 6px">buff卡5</th><th style="padding:8px 6px">AnonTokyo</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">158,200</td><td style="padding:6px">47,400</td><td style="padding:6px">32,600</td><td style="padding:6px">28,500</td><td style="padding:6px">18,500</td><td style="padding:6px">12,800</td><td style="padding:6px">9,200</td><td style="padding:6px">5,200</td><td style="padding:6px">4,000</td></tr>
+                <tr><td style="padding:6px">2026-04-18</td><td style="padding:6px">145,600</td><td style="padding:6px">43,680</td><td style="padding:6px">30,120</td><td style="padding:6px">26,280</td><td style="padding:6px">17,080</td><td style="padding:6px">11,840</td><td style="padding:6px">8,520</td><td style="padding:6px">4,800</td><td style="padding:6px">3,280</td></tr>
+              </tbody>
+            </table></div>
+            <div class="card"><h3>特权卡订阅&续期明细数据</h3>
+              <table style="font-size:12px"><thead><tr><th style="padding:8px 6px">日期</th><th style="padding:8px 6px">特权卡类型</th><th style="padding:8px 6px">当前订阅</th><th style="padding:8px 6px">本期新增</th><th style="padding:8px 6px">上期续费</th><th style="padding:8px 6px">续费率</th></tr></thead>
+              <tbody>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">月卡</td><td style="padding:6px">15,800</td><td style="padding:6px">3,300</td><td style="padding:6px">12,500</td><td style="padding:6px">79.1%</td></tr>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">通行证</td><td style="padding:6px">8,200</td><td style="padding:6px">1,500</td><td style="padding:6px">6,700</td><td style="padding:6px">81.7%</td></tr>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">乐队buff卡1</td><td style="padding:6px">5,600</td><td style="padding:6px">1,200</td><td style="padding:6px">4,400</td><td style="padding:6px">78.6%</td></tr>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">乐队buff卡2</td><td style="padding:6px">4,200</td><td style="padding:6px">900</td><td style="padding:6px">3,300</td><td style="padding:6px">78.6%</td></tr>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">乐队buff卡3</td><td style="padding:6px">3,200</td><td style="padding:6px">700</td><td style="padding:6px">2,500</td><td style="padding:6px">77.8%</td></tr>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">乐队buff卡4</td><td style="padding:6px">2,800</td><td style="padding:6px">600</td><td style="padding:6px">2,200</td><td style="padding:6px">76.5%</td></tr>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">乐队buff卡5</td><td style="padding:6px">2,400</td><td style="padding:6px">500</td><td style="padding:6px">1,900</td><td style="padding:6px">75.8%</td></tr>
+                <tr><td style="padding:6px">2026-04-19</td><td style="padding:6px">AnonTokyo特权卡</td><td style="padding:6px">1,800</td><td style="padding:6px">400</td><td style="padding:6px">1,400</td><td style="padding:6px">78.2%</td></tr>
+              </tbody>
+            </table></div>`;
+          break;
+
+        case 'gacha':
+        case 'ads':
+        case 'placeholder1':
+        case 'placeholder2':
+        case 'placeholder3':
+        case 'placeholderUA1':
+        case 'placeholderUA2':
+        case 'card':
+        case 'event':
+        case 'anonTokyo':
+          body.innerHTML = `<div class="card"><div class="placeholder"><div class="icon">🚧</div><h3>${pages[currentPage]?.title || '待补充'}</h3><p style="margin-top:8px">功能开发中...</p></div></div>`;
+          break;
+
+        default:
+          body.innerHTML = `<div class="card"><div class="placeholder"><div class="icon">📋</div><h3>页面开发中</h3></div></div>`;
+      }
+    }
+
+    // 初始化
+    renderMenu();
+    renderPage();
+  </script>
+</body>
+</html>

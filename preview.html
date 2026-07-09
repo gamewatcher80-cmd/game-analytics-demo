@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>数据分析平台 - 预览</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.10.3/umd/Recharts.js"></script>
+  <script src="https://babeljs.io/releases/standalone/babel.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f1f5f9;
+      --border-color: #e2e8f0;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-light: rgba(59, 130, 246, 0.1);
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --info: #3b82f6;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+    }
+    #root { min-height: 100vh; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    h1, h2, h3, h4 { color: var(--text-primary); font-weight: 600; }
+    input, select {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 10px 15px;
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      background: var(--bg-primary);
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); }
+    tr:hover td { background: var(--primary-light); }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    // KPICard组件
+    const KPICard = ({ title, value, unit = '', change, subtitle, icon }) => {
+      const isPositive = change >= 0;
+      return (
+        <div style={{
+          background: 'var(--bg-card)',
+          borderRadius: '12px',
+          padding: '20px',
+          border: '1px solid var(--border-color)',
+          transition: 'all 0.3s ease',
+          cursor: 'pointer',
+          flex: 1,
+          minWidth: '250px'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginBottom: '8px' }}>{title}</p>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px' }}>
+                <span style={{ fontSize: '28px', fontWeight: '700', color: 'var(--text-primary)' }}>
+                  {typeof value === 'number' ? value.toLocaleString() : value}
+                  {unit}
+                </span>
+              </div>
+              {subtitle && <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '6px' }}>{subtitle}</p>}
+              {change !== undefined && (
+                <p style={{ fontSize: '12px', marginTop: '12px', color: isPositive ? 'var(--success)' : 'var(--danger)' }}>
+                  {isPositive ? '↑' : '↓'} {Math.abs(change)}% 较上期
+                </p>
+              )}
+            </div>
+            {icon && <span style={{ fontSize: '32px' }}>{icon}</span>}
+          </div>
+        </div>
+      );
+    };
+
+    // 侧边栏组件
+    const Sidebar = ({ currentPage, onPageChange }) => {
+      const [collapsedGroups, setCollapsedGroups] = useState({});
+
+      const toggleGroup = (groupIndex) => {
+        setCollapsedGroups(prev => ({ ...prev, [groupIndex]: !prev[groupIndex] }));
+      };
+
+      const menuGroups = [
+        {
+          title: '【基础运营数据】',
+          items: [
+            { id: 'overview', label: 'KPI 仪表盘', icon: '📊' },
+            { id: 'realtime', label: '实时数据', icon: '⚡' },
+            { id: 'daily', label: '每日数据', icon: '📅' },
+            { id: 'weekly', label: '每周数据', icon: '📆' },
+            { id: 'monthly', label: '每月数据', icon: '🗓️' },
+            { id: 'region', label: '地区对比', icon: '🌍' },
+            { id: 'active', label: '活跃', icon: '🔥' },
+            { id: 'retention-new', label: '留存', icon: '🧡' },
+            { id: 'ltv', label: 'LTV', icon: '💎' },
+            { id: 'returning', label: '回流用户', icon: '🔄' },
+            { id: 'funnel-conversion', label: '转化率漏斗', icon: '🎯' },
+            { id: 'payment-recharge', label: '付费数据-充值', icon: '💳' },
+            { id: 'payment-consume', label: '付费数据-消耗', icon: '🛒' },
+            { id: 'payment-privilege', label: '付费数据-特权卡', icon: '💰' },
+            { id: 'gacha', label: '抽卡分析', icon: '🎰' },
+          ]
+        },
+        {
+          title: '【游戏玩法数据】',
+          items: [
+            { id: 'placeholder-game-1', label: '待补充1', icon: '📦' },
+            { id: 'placeholder-game-2', label: '待补充2', icon: '📦' },
+            { id: 'placeholder-game-3', label: '待补充3', icon: '📦' },
+            { id: 'card', label: '卡牌分析', icon: '🃏' },
+            { id: 'event', label: '活动效果分析', icon: '🎉' },
+            { id: 'anon-tokyo-store', label: 'AnonTokyo服装店玩法', icon: '👗' },
+          ]
+        },
+        {
+          title: '【UA】数据',
+          items: [
+            { id: 'ads', label: '投放数据', icon: '📢' },
+            { id: 'placeholder-ua-1', label: '待补充1', icon: '📦' },
+            { id: 'placeholder-ua-2', label: '待补充2', icon: '📦' },
+          ]
+        }
+      ];
+
+      return (
+        <div style={{ width: '240px', background: 'var(--bg-secondary)', height: '100vh', display: 'flex', flexDirection: 'column', borderRight: '1px solid var(--border-color)', position: 'fixed', left: 0, top: 0 }}>
+          <div style={{ padding: '20px', borderBottom: '1px solid var(--border-color)', background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%)' }}>
+            <h1 style={{ fontSize: '18px', fontWeight: '700', background: 'linear-gradient(90deg, var(--primary) 0%, #00ff88 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '4px' }}>BanG Dream!</h1>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>数据分析平台</p>
+          </div>
+          <nav style={{ flex: 1, overflowY: 'auto', padding: '12px 0' }}>
+            {menuGroups.map((group, groupIndex) => {
+              const isCollapsed = collapsedGroups[groupIndex];
+              return (
+                <div key={groupIndex}>
+                  <div onClick={() => toggleGroup(groupIndex)} style={{ padding: '12px 20px', fontSize: '13px', fontWeight: '700', color: 'var(--primary)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', userSelect: 'none' }}>
+                    <span>{group.title}</span>
+                    <span style={{ fontSize: '10px', transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>▼</span>
+                  </div>
+                  <div style={{ overflow: 'hidden', transition: 'max-height 0.3s ease', maxHeight: isCollapsed ? '0' : `${group.items.length * 44}px` }}>
+                    {group.items.map((item) => (
+                      <button key={item.id} onClick={() => onPageChange(item.id)} style={{ width: '100%', padding: '10px 20px 10px 32px', display: 'flex', alignItems: 'center', gap: '12px', border: 'none', background: currentPage === item.id ? 'var(--primary-light)' : 'transparent', color: currentPage === item.id ? 'var(--primary)' : 'var(--text-secondary)', borderLeft: currentPage === item.id ? '3px solid var(--primary)' : '3px solid transparent', cursor: 'pointer', transition: 'all 0.3s ease', textAlign: 'left', fontSize: '13px' }}>
+                        <span style={{ fontSize: '14px' }}>{item.icon}</span>
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </nav>
+          <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border-color)', fontSize: '11px', color: 'var(--text-muted)' }}>v1.0.0 Demo</div>
+        </div>
+      );
+    };
+
+    // KPI仪表盘
+    const Overview = () => {
+      const kpiData = [
+        { title: 'DAU', value: '115,832', change: 8.5, icon: '👥' },
+        { title: '今日收入', value: '¥128,560', change: 12.3, icon: '💰' },
+        { title: '新增用户', value: '22,156', change: 15.8, icon: '🆕' },
+        { title: '付费率', value: '3.2%', change: -0.5, icon: '💳' },
+      ];
+      const chartData = [
+        { name: '周一', dau: 105000, revenue: 95000 },
+        { name: '周二', dau: 112000, revenue: 102000 },
+        { name: '周三', dau: 108000, revenue: 98000 },
+        { name: '周四', dau: 115000, revenue: 108000 },
+        { name: '周五', dau: 118000, revenue: 115000 },
+        { name: '周六', dau: 125000, revenue: 128000 },
+        { name: '周日', dau: 122000, revenue: 122000 },
+      ];
+      return (
+        <div style={{ padding: '24px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+            {kpiData.map((item, i) => <KPICard key={i} {...item} />)}
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>KPI趋势</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis dataKey="name" stroke="var(--text-muted)" />
+                <YAxis yAxisId="left" stroke="var(--text-muted)" />
+                <YAxis yAxisId="right" orientation="right" stroke="var(--text-muted)" />
+                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '8px' }} />
+                <Legend />
+                <Line yAxisId="left" type="monotone" dataKey="dau" stroke="var(--primary)" strokeWidth={2} name="DAU" />
+                <Line yAxisId="right" type="monotone" dataKey="revenue" stroke="var(--success)" strokeWidth={2} name="收入" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    };
+
+    // 实时数据
+    const RealtimeData = () => {
+      const [dateRange] = useState({ startDate: new Date().toISOString().split('T')[0], endDate: new Date().toISOString().split('T')[0] });
+      const realtimeData = { online: 12458, onlineChange: 8.5, active: 45892, activeChange: -3.2, newUsers: 3256, newChange: 15.8, revenue: 128560, revenueChange: 12.3 };
+      const hourlyOnlineData = Array.from({ length: 24 }, (_, i) => ({ hour: `${i.toString().padStart(2, '0')}:00`, value: Math.floor(5000 + Math.random() * 15000 + Math.sin((i - 12) / 3) * 8000) }));
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>开始时间</label><input type="date" value={dateRange.startDate} readOnly /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>结束时间</label><input type="date" value={dateRange.endDate} readOnly /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>服务器</label><select defaultValue="all"><option value="all">全部服务器</option><option value="en">英文地区</option><option value="kr">韩国</option><option value="tw">港澳台</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>终端</label><select defaultValue="all"><option value="all">全部</option><option value="ios">iOS</option><option value="android">安卓</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>账号类型</label><select defaultValue="all"><option value="all">全部</option><option value="valid">有效</option><option value="no_bot">去黑产</option></select></div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', overflowX: 'auto' }}>
+            <KPICard title="当前在线人数（账号）" value={realtimeData.online.toLocaleString()} change={realtimeData.onlineChange} icon="👥" />
+            <KPICard title="今日实时活跃账号" value={realtimeData.active.toLocaleString()} change={realtimeData.activeChange} subtitle="活跃/新增: 3.2x" icon="✅" />
+            <KPICard title="今日实时新增账号" value={realtimeData.newUsers.toLocaleString()} change={realtimeData.newChange} subtitle="预计全天: 8,500" icon="🆕" />
+            <KPICard title="今日实时收入" value={`¥${realtimeData.revenue.toLocaleString()}`} change={realtimeData.revenueChange} icon="💰" />
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>实时在线趋势</h3>
+            <ResponsiveContainer width="100%" height={250}>
+              <LineChart data={hourlyOnlineData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis dataKey="hour" stroke="var(--text-muted)" fontSize={11} />
+                <YAxis stroke="var(--text-muted)" fontSize={11} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '8px' }} />
+                <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} name="在线人数" dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    };
+
+    // 每日数据
+    const DailyData = () => {
+      const dailyData = Array.from({ length: 30 }, (_, i) => {
+        const date = new Date(); date.setDate(date.getDate() - (29 - i));
+        return { date: date.toISOString().split('T')[0], active: Math.floor(40000 + Math.random() * 20000), new: Math.floor(2000 + Math.random() * 3000), revenue: Math.floor(50000 + Math.random() * 100000), paying: Math.floor(800 + Math.random() * 500) };
+      });
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>服务器</label><select defaultValue="all"><option value="all">全部服务器</option></select></div>
+            </div>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>日报明细</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '12px' }}>
+                <thead><tr><th>日期</th><th>活跃账号数</th><th>新增账号数</th><th>总收入</th><th>付费账号数</th></tr></thead>
+                <tbody>{dailyData.slice(0, 10).map((item, i) => <tr key={i}><td>{item.date}</td><td>{item.active.toLocaleString()}</td><td>{item.new.toLocaleString()}</td><td>¥{item.revenue.toLocaleString()}</td><td>{item.paying.toLocaleString()}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 每周数据
+    const WeeklyData = () => {
+      const weeklyData = Array.from({ length: 8 }, (_, i) => ({ week: `第${8-i}周`, active: Math.floor(280000 + Math.random() * 100000), new: Math.floor(15000 + Math.random() * 20000), revenue: Math.floor(350000 + Math.random() * 500000) })).reverse();
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card"><h3 style={{ marginBottom: '16px' }}>周报明细</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '12px' }}><thead><tr><th>周</th><th>周活跃账号数</th><th>周新增账号数</th><th>周总收入</th></tr></thead>
+                <tbody>{weeklyData.map((item, i) => <tr key={i}><td>{item.week}</td><td>{item.active.toLocaleString()}</td><td>{item.new.toLocaleString()}</td><td>¥{item.revenue.toLocaleString()}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 每月数据
+    const MonthlyData = () => {
+      const monthlyData = Array.from({ length: 6 }, (_, i) => { const d = new Date(); d.setMonth(d.getMonth() - (5 - i)); return { month: `${d.getMonth()+1}月`, active: Math.floor(1200000 + Math.random() * 400000), revenue: Math.floor(1500000 + Math.random() * 2000000) }; });
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card"><h3 style={{ marginBottom: '16px' }}>月报明细</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '12px' }}><thead><tr><th>月份</th><th>月活跃账号数</th><th>月总收入</th></tr></thead>
+                <tbody>{monthlyData.map((item, i) => <tr key={i}><td>{item.month}</td><td>{item.active.toLocaleString()}</td><td>¥{item.revenue.toLocaleString()}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 地区对比
+    const RegionComparison = () => {
+      const dauData = Array.from({ length: 30 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (29 - i)); return { date: d.toISOString().split('T')[0], en: Math.floor(45000 + Math.random() * 10000), kr: Math.floor(28000 + Math.random() * 8000), tw: Math.floor(25000 + Math.random() * 6000) }; });
+      const mauData = Array.from({ length: 12 }, (_, i) => ({ month: `${i+1}月`, en: Math.floor(800000 + Math.random() * 200000), kr: Math.floor(500000 + Math.random() * 150000), tw: Math.floor(450000 + Math.random() * 100000) }));
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '16px' }}>DAU对比（最近30天）</h3>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={dauData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} width={60} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '11px' }} />
+                <Legend />
+                <Line type="monotone" dataKey="en" name="英文地区" stroke="#4f46e5" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="kr" name="韩国" stroke="#22c55e" strokeWidth={2} dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="tw" name="港澳台" stroke="#f59e0b" strokeWidth={2} dot={{ r: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>MAU对比（最近12个月）</h3>
+            <ResponsiveContainer width="100%" height={280}>
+              <LineChart data={mauData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} width={70} tickFormatter={(v) => (v / 1000000).toFixed(1) + 'M'} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '11px' }} />
+                <Legend />
+                <Line type="monotone" dataKey="en" name="英文地区" stroke="#4f46e5" strokeWidth={2} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="kr" name="韩国" stroke="#22c55e" strokeWidth={2} dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="tw" name="港澳台" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      );
+    };
+
+    // 活跃
+    const ActiveData = () => {
+      const activeData = Array.from({ length: 30 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - (29 - i)); return { date: d.toISOString().split('T')[0], dau: Math.floor(115000 + Math.random() * 20000), newUsers: Math.floor(22000 + Math.random() * 8000) }; });
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '16px' }}>活跃用户趋势</h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={activeData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
+                <YAxis stroke="var(--text-muted)" fontSize={12} />
+                <Tooltip contentStyle={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '8px' }} />
+                <Line type="monotone" dataKey="dau" stroke="#ef4444" strokeWidth={2} name="DAU" dot={false} />
+                <Line type="monotone" dataKey="newUsers" stroke="var(--primary)" strokeWidth={2} name="新增用户" dot={false} />
+                <Legend />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>活跃数据明细</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '12px' }}><thead><tr><th>日期</th><th>DAU</th><th>新增用户</th></tr></thead>
+                <tbody>{activeData.slice(0, 10).map((item, i) => <tr key={i}><td>{item.date}</td><td>{item.dau.toLocaleString()}</td><td>{item.newUsers.toLocaleString()}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 留存
+    const RetentionNew = () => {
+      const [accountType, setAccountType] = useState('new');
+      const retentionData = [
+        { day: '新增账号', d1: '45.2%', d3: '32.5%', d7: '25.8%', d14: '20.1%', d30: '15.2%', d60: '10.5%', d90: '7.8%' },
+        { day: '2026-04-19', d1: '45.2%', d3: '32.5%', d7: '25.8%', d14: '20.1%', d30: '15.2%', d60: '10.5%', d90: '7.8%' },
+        { day: '2026-04-18', d1: '44.8%', d3: '31.9%', d7: '25.2%', d14: '19.5%', d30: '14.8%', d60: '10.1%', d90: '-' },
+        { day: '2026-04-17', d1: '45.5%', d3: '33.1%', d7: '26.2%', d14: '20.5%', d30: '15.5%', d60: '-', d90: '-' },
+      ];
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>留存账号类型</label><select value={accountType} onChange={(e) => setAccountType(e.target.value)}><option value="new">新增账号</option><option value="pay">新增付费账号</option><option value="first_pay">首次付费账号</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>开始时间</label><input type="date" /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>结束时间</label><input type="date" /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>服务器</label><select defaultValue="all"><option value="all">全部服务器</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>终端</label><select defaultValue="all"><option value="all">全部终端</option><option value="ios">iOS</option><option value="android">安卓</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>账号类型</label><select defaultValue="all"><option value="all">全部</option></select></div>
+            </div>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>留存率明细</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '11px' }}>
+                <thead><tr><th>日期</th><th>1留</th><th>3留</th><th>7留</th><th>14留</th><th>30留</th><th>60留</th><th>90留</th></tr></thead>
+                <tbody>{retentionData.map((item, i) => <tr key={i}><td>{item.day}</td><td>{item.d1}</td><td>{item.d3}</td><td>{item.d7}</td><td>{item.d14}</td><td>{item.d30}</td><td>{item.d60}</td><td>{item.d90}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // LTV
+    const LTV = () => {
+      const ltvData = [
+        { day: '新增账号', ltv1: '¥8.50', ltv3: '¥18.20', ltv7: '¥28.50', ltv14: '¥38.20', ltv30: '¥52.80', ltv60: '¥68.50', ltv90: '¥82.30' },
+        { day: '2026-04-19', ltv1: '¥8.50', ltv3: '¥18.20', ltv7: '¥28.50', ltv14: '¥38.20', ltv30: '¥52.80', ltv60: '¥68.50', ltv90: '¥82.30' },
+        { day: '2026-04-18', ltv1: '¥8.20', ltv3: '¥17.80', ltv7: '¥27.90', ltv14: '¥37.50', ltv30: '¥51.20', ltv60: '¥66.80', ltv90: '-' },
+      ];
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>LTV账号类型</label><select defaultValue="new"><option value="new">新增账号</option><option value="pay">新增付费账号</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>开始时间</label><input type="date" /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>结束时间</label><input type="date" /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>服务器</label><select defaultValue="all"><option value="all">全部服务器</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>终端</label><select defaultValue="all"><option value="all">全部终端</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>账号类型</label><select defaultValue="all"><option value="all">全部</option></select></div>
+            </div>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>LTV明细</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '11px' }}><thead><tr><th>日期</th><th>LTV1</th><th>LTV3</th><th>LTV7</th><th>LTV14</th><th>LTV30</th><th>LTV60</th><th>LTV90</th></tr></thead>
+                <tbody>{ltvData.map((item, i) => <tr key={i}><td>{item.day}</td><td>{item.ltv1}</td><td>{item.ltv3}</td><td>{item.ltv7}</td><td>{item.ltv14}</td><td>{item.ltv30}</td><td>{item.ltv60}</td><td>{item.ltv90}</td></tr>)}</tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 回流用户
+    const ReturningUser = () => {
+      const returningData = [
+        { date: '2026-04-19', returning: 8500, day1: '68.5%', day3: '52.3%', day7: '42.1%', day14: '35.2%', day30: '28.5%', day60: '22.1%', day90: '18.5%', day180: '12.3%', day360: '8.5%' },
+        { date: '2026-04-18', returning: 8200, day1: '67.8%', day3: '51.5%', day7: '41.5%', day14: '34.8%', day30: '28.0%', day60: '21.5%', day90: '18.0%', day180: '-', day360: '-' },
+      ];
+      const ltvData = [
+        { date: '2026-04-19', returning: 8500, ltv1: '¥12.50', ltv3: '¥28.20', ltv7: '¥42.50', ltv14: '¥58.20', ltv30: '¥78.80', ltv60: '¥98.50', ltv90: '¥118.30', ltv180: '¥165.50', ltv360: '¥220.80' },
+        { date: '2026-04-18', returning: 8200, ltv1: '¥12.20', ltv3: '¥27.80', ltv7: '¥41.90', ltv14: '¥57.50', ltv30: '¥77.20', ltv60: '¥96.80', ltv90: '¥115.50', ltv180: '-', ltv360: '-' },
+      ];
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>开始时间</label><input type="date" /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>结束时间</label><input type="date" /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>服务器</label><select defaultValue="all"><option value="all">全部服务器</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>终端</label><select defaultValue="all"><option value="all">全部终端</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>账号类型</label><select defaultValue="all"><option value="all">全部</option></select></div>
+            </div>
+          </div>
+          <div className="card" style={{ marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '16px' }}>每日回流用户留存</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '10px' }}>
+                <thead><tr><th>日期</th><th>回流用户数</th><th>1留</th><th>3留</th><th>7留</th><th>14留</th><th>30留</th><th>60留</th><th>90留</th><th>180留</th><th>360留</th></tr></thead>
+                <tbody>{returningData.map((item, i) => <tr key={i}><td>{item.date}</td><td>{item.returning.toLocaleString()}</td><td>{item.day1}</td><td>{item.day3}</td><td>{item.day7}</td><td>{item.day14}</td><td>{item.day30}</td><td>{item.day60}</td><td>{item.day90}</td><td>{item.day180}</td><td>{item.day360}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>每日回流用户LTV</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '10px' }}>
+                <thead><tr><th>日期</th><th>回流用户数</th><th>LTV1</th><th>LTV3</th><th>LTV7</th><th>LTV14</th><th>LTV30</th><th>LTV60</th><th>LTV90</th><th>LTV180</th><th>LTV360</th></tr></thead>
+                <tbody>{ltvData.map((item, i) => <tr key={i}><td>{item.date}</td><td>{item.returning.toLocaleString()}</td><td>{item.ltv1}</td><td>{item.ltv3}</td><td>{item.ltv7}</td><td>{item.ltv14}</td><td>{item.ltv30}</td><td>{item.ltv60}</td><td>{item.ltv90}</td><td>{item.ltv180}</td><td>{item.ltv360}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 转化率漏斗
+    const ConversionFunnel = () => {
+      const funnelData = [
+        { stage: '曝光', value: 1000000, rate: '100%' },
+        { stage: '点击', value: 250000, rate: '25%' },
+        { stage: '下载', value: 125000, rate: '12.5%' },
+        { stage: '注册', value: 100000, rate: '10%' },
+        { stage: '活跃', value: 45000, rate: '4.5%' },
+        { stage: '付费', value: 2500, rate: '0.25%' },
+      ];
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>转化率漏斗</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+              {funnelData.map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px', width: '100%', maxWidth: '600px' }}>
+                  <div style={{ width: '80px', textAlign: 'right', fontSize: '13px', color: 'var(--text-secondary)' }}>{item.stage}</div>
+                  <div style={{ flex: 1, height: '36px', background: `linear-gradient(90deg, var(--primary) ${item.rate}, transparent ${item.rate})`, borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: '12px' }}>
+                    <span style={{ fontSize: '12px', fontWeight: '600' }}>{item.value.toLocaleString()}</span>
+                  </div>
+                  <div style={{ width: '60px', fontSize: '12px', color: 'var(--primary)', fontWeight: '500' }}>{item.rate}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 付费数据-充值
+    const PaymentRecharge = () => {
+      const productSales = [
+        { date: '2026-04-19', productName: '月卡(30元)', productId: 'P001', buyers: 4500, totalSales: 135000, iosSales: 81000, androidSales: 40500, androidOfficialSales: 9000, webSales: 4500 },
+        { date: '2026-04-19', productName: '月卡(68元)', productId: 'P002', buyers: 3200, totalSales: 217600, iosSales: 130560, androidSales: 65280, androidOfficialSales: 13056, webSales: 8704 },
+        { date: '2026-04-19', productName: '首充礼包', productId: 'P003', buyers: 8500, totalSales: 127500, iosSales: 76500, androidSales: 38250, androidOfficialSales: 8500, webSales: 4250 },
+        { date: '2026-04-18', productName: '648钻石', productId: 'P004', buyers: 12000, totalSales: 777600, iosSales: 466560, androidSales: 233280, androidOfficialSales: 46656, webSales: 31104 },
+        { date: '2026-04-18', productName: '328钻石', productId: 'P005', buyers: 8500, totalSales: 278800, iosSales: 167280, androidSales: 83640, androidOfficialSales: 16728, webSales: 11152 },
+        { date: '2026-04-17', productName: '98钻石', productId: 'P006', buyers: 18000, totalSales: 176400, iosSales: 105840, androidSales: 52920, androidOfficialSales: 10584, webSales: 7056 },
+        { date: '2026-04-17', productName: '30钻石', productId: 'P007', buyers: 45000, totalSales: 135000, iosSales: 81000, androidSales: 40500, androidOfficialSales: 9000, webSales: 4500 },
+      ];
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>开始时间</label><input type="date" /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>结束时间</label><input type="date" /></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>服务器</label><select defaultValue="all"><option value="all">全部服务器</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>终端</label><select defaultValue="all"><option value="all">全部终端</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>账号类型</label><select defaultValue="all"><option value="all">全部</option></select></div>
+            </div>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>商品销售明细数据</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '12px' }}>
+                <thead><tr><th>日期</th><th>商品名字</th><th>商品ID</th><th>购买人数</th><th>总销量</th><th>iOS销量</th><th>Android销量</th><th>Android官方包</th><th>WEB商城</th></tr></thead>
+                <tbody>{productSales.map((item, i) => <tr key={i}><td>{item.date}</td><td>{item.productName}</td><td>{item.productId}</td><td>{item.buyers.toLocaleString()}</td><td>{item.totalSales.toLocaleString()}</td><td>{item.iosSales.toLocaleString()}</td><td>{item.androidSales.toLocaleString()}</td><td>{item.androidOfficialSales.toLocaleString()}</td><td>{item.webSales.toLocaleString()}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 付费数据-消耗
+    const PaymentConsume = () => {
+      const consumeData = [
+        { date: '2026-04-19', item: '体力', cost: 125000, users: 45000 },
+        { date: '2026-04-19', item: '抽卡', cost: 250000, users: 28000 },
+        { date: '2026-04-19', item: '服装', cost: 85000, users: 15000 },
+        { date: '2026-04-18', item: '体力', cost: 118000, users: 42000 },
+      ];
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>服务器</label><select defaultValue="all"><option value="all">全部服务器</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>终端</label><select defaultValue="all"><option value="all">全部终端</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>账号类型</label><select defaultValue="all"><option value="all">全部</option></select></div>
+            </div>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>消耗明细</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '12px' }}><thead><tr><th>日期</th><th>消耗类型</th><th>消耗金额</th><th>消耗人数</th></tr></thead>
+                <tbody>{consumeData.map((item, i) => <tr key={i}><td>{item.date}</td><td>{item.item}</td><td>¥{item.cost.toLocaleString()}</td><td>{item.users.toLocaleString()}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 付费数据-特权卡
+    const PaymentPrivilege = () => {
+      const purchaseData = [
+        { date: '2026-04-19', total: 158200, monthlyCard: 47400, pass: 32600, buff1: 28500, buff2: 18500, buff3: 12800, buff4: 9200, buff5: 5200, anonTokyo: 4000 },
+        { date: '2026-04-18', total: 145600, monthlyCard: 43680, pass: 30120, buff1: 26280, buff2: 17080, buff3: 11840, buff4: 8520, buff5: 4800, anonTokyo: 3280 },
+      ];
+      const subscriptionDetailData = [
+        { date: '2026-04-19', cardType: '月卡', currentSubs: 15800, newSubs: 3300, prevRenewal: 12500, renewalRate: 79.1 },
+        { date: '2026-04-19', cardType: '通行证', currentSubs: 8200, newSubs: 1500, prevRenewal: 6700, renewalRate: 81.7 },
+        { date: '2026-04-19', cardType: '乐队buff卡1', currentSubs: 5600, newSubs: 1200, prevRenewal: 4400, renewalRate: 78.6 },
+        { date: '2026-04-19', cardType: '乐队buff卡2', currentSubs: 4200, newSubs: 900, prevRenewal: 3300, renewalRate: 78.6 },
+        { date: '2026-04-19', cardType: '乐队buff卡3', currentSubs: 3200, newSubs: 700, prevRenewal: 2500, renewalRate: 77.8 },
+        { date: '2026-04-19', cardType: '乐队buff卡4', currentSubs: 2800, newSubs: 600, prevRenewal: 2200, renewalRate: 76.5 },
+        { date: '2026-04-19', cardType: '乐队buff卡5', currentSubs: 2400, newSubs: 500, prevRenewal: 1900, renewalRate: 75.8 },
+        { date: '2026-04-19', cardType: 'AnonTokyo特权卡', currentSubs: 1800, newSubs: 400, prevRenewal: 1400, renewalRate: 78.2 },
+      ];
+      return (
+        <div style={{ padding: '24px' }}>
+          <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>服务器</label><select defaultValue="all"><option value="all">全部服务器</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>终端</label><select defaultValue="all"><option value="all">全部终端</option></select></div>
+              <div><label style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>账号类型</label><select defaultValue="all"><option value="all">全部</option></select></div>
+            </div>
+          </div>
+          <div className="card" style={{ marginBottom: '20px' }}>
+            <h3 style={{ marginBottom: '16px' }}>特权卡购买明细数据</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '12px' }}>
+                <thead><tr><th style={{padding:'8px 6px'}}>日期</th><th style={{padding:'8px 6px'}}>总计充值</th><th style={{padding:'8px 6px'}}>月卡-充值</th><th style={{padding:'8px 6px'}}>通行证-充值</th><th style={{padding:'8px 6px'}}>乐队buff卡1</th><th style={{padding:'8px 6px'}}>乐队buff卡2</th><th style={{padding:'8px 6px'}}>乐队buff卡3</th><th style={{padding:'8px 6px'}}>乐队buff卡4</th><th style={{padding:'8px 6px'}}>乐队buff卡5</th><th style={{padding:'8px 6px'}}>AnonTokyo特权卡</th></tr></thead>
+                <tbody>{purchaseData.map((item, i) => <tr key={i}><td style={{padding:'6px'}}>{item.date}</td><td style={{padding:'6px'}}>{item.total.toLocaleString()}</td><td style={{padding:'6px'}}>{item.monthlyCard.toLocaleString()}</td><td style={{padding:'6px'}}>{item.pass.toLocaleString()}</td><td style={{padding:'6px'}}>{item.buff1.toLocaleString()}</td><td style={{padding:'6px'}}>{item.buff2.toLocaleString()}</td><td style={{padding:'6px'}}>{item.buff3.toLocaleString()}</td><td style={{padding:'6px'}}>{item.buff4.toLocaleString()}</td><td style={{padding:'6px'}}>{item.buff5.toLocaleString()}</td><td style={{padding:'6px'}}>{item.anonTokyo.toLocaleString()}</td></tr>)}</tbody>
+              </table>
+            </div>
+          </div>
+          <div className="card">
+            <h3 style={{ marginBottom: '16px' }}>特权卡订阅&续期明细数据</h3>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ fontSize: '12px' }}><thead><tr><th style={{padding:'8px 6px'}}>日期</th><th style={{padding:'8px 6px'}}>特权卡类型</th><th style={{padding:'8px 6px'}}>当前订阅人数</th><th style={{padding:'8px 6px'}}>本期新增订阅</th><th style={{padding:'8px 6px'}}>上期续费人数</th><th style={{padding:'8px 6px'}}>续费率</th></tr></thead>
+                <tbody>{subscriptionDetailData.map((item, i) => <tr key={i}><td style={{padding:'6px'}}>{item.date}</td><td style={{padding:'6px'}}>{item.cardType}</td><td style={{padding:'6px'}}>{item.currentSubs.toLocaleString()}</td><td style={{padding:'6px'}}>{item.newSubs.toLocaleString()}</td><td style={{padding:'6px'}}>{item.prevRenewal.toLocaleString()}</td><td style={{padding:'6px'}}>{item.renewalRate}%</td></tr>)}</tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // 抽卡分析
+    const GachaAnalysis = () => (
+      <div style={{ padding: '24px' }}>
+        <div className="card"><h3 style={{ marginBottom: '16px' }}>抽卡分析</h3><p style={{ color: 'var(--text-secondary)' }}>功能开发中...</p></div>
+      </div>
+    );
+
+    // 投放数据
+    const AdsData = () => (
+      <div style={{ padding: '24px' }}>
+        <div className="card"><h3 style={{ marginBottom: '16px' }}>投放数据</h3><p style={{ color: 'var(--text-secondary)' }}>功能开发中...</p></div>
+      </div>
+    );
+
+    // 占位页面
+    const Placeholder = ({ title }) => (
+      <div style={{ padding: '24px' }}>
+        <div className="card"><h3 style={{ marginBottom: '16px' }}>{title}</h3><p style={{ color: 'var(--text-secondary)' }}>功能开发中...</p></div>
+      </div>
+    );
+
+    // 主应用
+    const App = () => {
+      const [currentPage, setCurrentPage] = useState('overview');
+
+      const renderPage = () => {
+        switch (currentPage) {
+          case 'overview': return <Overview />;
+          case 'realtime': return <RealtimeData />;
+          case 'daily': return <DailyData />;
+          case 'weekly': return <WeeklyData />;
+          case 'monthly': return <MonthlyData />;
+          case 'region': return <RegionComparison />;
+          case 'active': return <ActiveData />;
+          case 'retention-new': return <RetentionNew />;
+          case 'ltv': return <LTV />;
+          case 'returning': return <ReturningUser />;
+          case 'funnel-conversion': return <ConversionFunnel />;
+          case 'payment-recharge': return <PaymentRecharge />;
+          case 'payment-consume': return <PaymentConsume />;
+          case 'payment-privilege': return <PaymentPrivilege />;
+          case 'gacha': return <GachaAnalysis />;
+          case 'ads': return <AdsData />;
+          default: return <Placeholder title={currentPage} />;
+        }
+      };
+
+      const pageTitles = {
+        'overview': 'KPI 仪表盘', 'realtime': '实时数据', 'daily': '每日数据', 'weekly': '每周数据',
+        'monthly': '每月数据', 'region': '地区对比', 'active': '活跃', 'retention-new': '留存',
+        'ltv': 'LTV', 'returning': '回流用户', 'funnel-conversion': '转化率漏斗',
+        'payment-recharge': '付费数据-充值', 'payment-consume': '付费数据-消耗',
+        'payment-privilege': '付费数据-特权卡', 'gacha': '抽卡分析', 'ads': '投放数据'
+      };
+
+      return (
+        <div style={{ display: 'flex', minHeight: '100vh' }}>
+          <Sidebar currentPage={currentPage} onPageChange={setCurrentPage} />
+          <div style={{ marginLeft: '240px', flex: 1 }}>
+            <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: '600' }}>{pageTitles[currentPage] || currentPage}</h2>
+            </div>
+            {renderPage()}
+          </div>
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

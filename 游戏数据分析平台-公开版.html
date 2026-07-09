@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>游戏数据分析平台</title>
+  <style>
+    :root {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --border-color: #e2e8f0;
+      --primary: #3b82f6;
+      --primary-light: rgba(59,130,246,0.1);
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: var(--bg-primary); color: var(--text-primary); font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; line-height:1.6; }
+
+    .sidebar { width:240px;background:var(--bg-secondary);height:100vh;position:fixed;left:0;top:0;border-right:1px solid var(--border-color);display:flex;flex-direction:column;z-index:100;overflow-y:auto; }
+    .sidebar-header { padding:20px;border-bottom:1px solid var(--border-color);background:linear-gradient(135deg,var(--bg-card),var(--bg-secondary)); }
+    .sidebar-header h1 { font-size:18px;font-weight:700;background:linear-gradient(90deg,var(--primary),#00ff88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px; }
+    .sidebar-header p { font-size:12px;color:var(--text-secondary); }
+    .menu-group { border-bottom:1px solid var(--border-color); }
+    .menu-group-title { padding:12px 20px;font-size:13px;font-weight:700;color:var(--primary);cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none;transition:background 0.2s; }
+    .menu-group-title:hover { background:var(--primary-light); }
+    .menu-group-title .arrow { font-size:10px;transition:transform 0.2s; }
+    .menu-group-title.collapsed .arrow { transform:rotate(-90deg); }
+    .menu-group-items { overflow:hidden;transition:max-height 0.3s ease;max-height:0; }
+    .menu-group-items.expanded { max-height:800px; }
+    .menu-item { padding:10px 20px 10px 32px;font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:12px;border-left:3px solid transparent;transition:all 0.3s; }
+    .menu-item:hover { background:var(--primary-light); }
+    .menu-item.active { background:var(--primary-light);color:var(--primary);border-left-color:var(--primary); }
+    .sidebar-footer { padding:16px 20px;border-top:1px solid var(--border-color);font-size:11px;color:var(--text-muted);margin-top:auto; }
+
+    .main { margin-left:240px;min-height:100vh;display:flex;flex-direction:column; }
+    .header { padding:20px 24px;border-bottom:1px solid var(--border-color);background:var(--bg-secondary); }
+    .header h2 { font-size:18px;font-weight:600; }
+    .body { flex:1;padding:24px;overflow-y:auto; }
+
+    .card { background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.05);transition:border-color 0.3s; }
+    .card:hover { border-color:var(--primary); }
+    .card h3 { margin-bottom:16px;font-size:16px;font-weight:600; }
+
+    .kpi-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px; }
+    .kpi-card { background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:20px;cursor:pointer;transition:all 0.3s; }
+    .kpi-card:hover { border-color:var(--primary);box-shadow:0 4px 12px rgba(59,130,246,0.15); }
+    .kpi-label { color:var(--text-secondary);font-size:13px;margin-bottom:8px; }
+    .kpi-value { font-size:28px;font-weight:700; }
+    .kpi-change { font-size:12px;margin-top:12px; }
+    .kpi-up { color:var(--success); }
+    .kpi-down { color:var(--danger); }
+
+    .filters { display:flex;gap:16px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end; }
+    .filter-group { display:flex;flex-direction:column;gap:4px; }
+    .filter-group label { font-size:12px;color:var(--text-secondary); }
+    .filter-group select,.filter-group input { padding:10px 15px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-secondary);color:var(--text-primary);font-size:13px;outline:none;min-width:140px; }
+    .filter-group select:focus,.filter-group input:focus { border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light); }
+
+    table { width:100%;border-collapse:collapse;font-size:12px; }
+    th { background:var(--bg-primary);color:var(--text-secondary);padding:12px 10px;text-align:left;border-bottom:1px solid var(--border-color);font-weight:500;white-space:nowrap; }
+    td { padding:12px 10px;border-bottom:1px solid var(--border-color);white-space:nowrap; }
+    tr:hover td { background:var(--primary-light); }
+
+    .chart-container { width:100%;height:300px;position:relative; }
+    .chart-canvas { width:100%;height:100%;display:block; }
+
+    .funnel-container { display:flex;flex-direction:column;gap:12px;align-items:center;padding:20px 0; }
+    .funnel-row { display:flex;align-items:center;gap:16px;width:100%;max-width:650px; }
+    .funnel-label { width:70px;text-align:right;font-size:13px;color:var(--text-secondary);flex-shrink:0; }
+    .funnel-bar-wrap { flex:1;height:38px;position:relative;border-radius:6px;overflow:hidden;background:#f1f5f9; }
+    .funnel-bar-fill { height:100%;background:linear-gradient(90deg,var(--primary),#60a5fa);display:flex;align-items:center;justify-content:flex-end;padding-right:14px;transition:width 0.5s ease; }
+    .funnel-bar-value { font-size:13px;font-weight:600;color:#fff; }
+    .funnel-rate { width:55px;font-size:13px;color:var(--primary);font-weight:600;flex-shrink:0; }
+
+    .placeholder { text-align:center;padding:50px 20px;color:var(--text-secondary); }
+    .placeholder-icon { font-size:48px;margin-bottom:12px; }
+
+    ::-webkit-scrollbar { width:8px;height:8px; }
+    ::-webkit-scrollbar-track { background:var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background:var(--border-color);border-radius:4px; }
+    ::-webkit-scrollbar-thumb:hover { background:var(--primary); }
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h1>游戏A</h1>
+    <p>数据分析平台 v1.0</p>
+  </div>
+  <nav id="navMenu"></nav>
+  <div class="sidebar-footer">Demo Preview</div>
+</div>
+
+<div class="main">
+  <div class="header"><h2 id="pageTitle"></h2></div>
+  <div class="body" id="pageBody"></div>
+</div>
+
+<script>
+// ==================== 图表引擎 (纯Canvas) ====================
+const Chart = {
+  colors: ['#3b82f6','#22c55e','#f59e0b','#ef4444','#8b5cf6','#ec4899','#06b6d4','#84cc16'],
+
+  line(canvasId, datasets, options = {}) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width, H = rect.height;
+    const pad = { t: 30, r: 80, b: 40, l: 55 };
+    const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
+
+    let allX = [], allY = [];
+    datasets.forEach(ds => {
+      ds.data.forEach(p => { if (!allX.includes(p.x)) allX.push(p.x); allY.push(p.y); });
+    });
+    const yMin = Math.min(...allY) * 0.95, yMax = Math.max(...allY) * 1.05;
+    const xStep = cW / Math.max(allX.length - 1, 1);
+
+    ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const y = pad.t + (cH / 5) * i;
+      ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+      ctx.fillStyle = '#94a3b8'; ctx.font = '11px sans-serif'; ctx.textAlign = 'right';
+      const val = yMax - ((yMax - yMin) / 5) * i;
+      ctx.fillText(this.fmtNum(val), pad.l - 8, y + 4);
+    }
+    ctx.textAlign = 'center';
+    allX.forEach((x, i) => {
+      const px = pad.l + xStep * i;
+      ctx.fillText(x, px, H - pad.b + 18);
+    });
+
+    datasets.forEach((ds, di) => {
+      ctx.strokeStyle = this.colors[di % this.colors.length];
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.beginPath();
+      ds.data.forEach((p, i) => {
+        const px = pad.l + xStep * i;
+        const py = pad.t + cH - ((p.y - yMin) / (yMax - yMin)) * cH;
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      });
+      ctx.stroke();
+
+      ctx.fillStyle = this.colors[di % this.colors.length];
+      ds.data.forEach((p, i) => {
+        const px = pad.l + xStep * i;
+        const py = pad.t + cH - ((p.y - yMin) / (yMax - yMin)) * cH;
+        ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(px, py, 2, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = this.colors[di % this.colors.length];
+      });
+    });
+
+    ctx.font = '12px sans-serif'; ctx.textAlign = 'left';
+    datasets.forEach((ds, i) => {
+      const lx = pad.l + i * 90;
+      ctx.fillStyle = this.colors[i % this.colors.length];
+      ctx.fillRect(lx, 10, 14, 14);
+      ctx.fillStyle = '#64748b';
+      ctx.fillText(ds.name || '', lx + 18, 21);
+    });
+  },
+
+  fmtNum(n) {
+    if (n >= 1000000) return (n/1000000).toFixed(1)+'M';
+    if (n >= 1000) return (n/1000).toFixed(0)+'K';
+    return n.toFixed(n%1===0?0:1);
+  },
+
+  area(canvasId, dataset, options = {}) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.scale(dpr, dpr);
+
+    const W = rect.width, H = rect.height;
+    const pad = {t:25,r:20,b:35,l:50};
+    const cW = W-pad.l-pad.r, cH = H-pad.t-pad.b;
+    const data = dataset.data;
+    const yMin = Math.min(...data.map(d=>d.y))*0.9, yMax = Math.max(...data.map(d=>d.y))*1.1;
+    const xStep = cW/Math.max(data.length-1,1);
+
+    ctx.strokeStyle='#e5e7eb';ctx.lineWidth=1;
+    for(let i=0;i<=4;i++){
+      const y=pad.t+(cH/4)*i;
+      ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(W-pad.r,y);ctx.stroke();
+      ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='right';
+      ctx.fillText(Math.round(yMax-(yMax-yMin)/4*i).toLocaleString(),pad.l-8,y+4);
+    }
+    data.forEach((d,i)=>{
+      if(i%4===0){ctx.textAlign='center';ctx.fillText(d.x,pad.l+xStep*i,H-pad.b+18);}
+    });
+
+    const grad=ctx.createLinearGradient(0,pad.t,0,H-pad.b);
+    grad.addColorStop(0,'rgba(59,130,246,0.3)');
+    grad.addColorStop(1,'rgba(59,130,246,0)');
+    ctx.fillStyle=grad;
+    ctx.beginPath();
+    ctx.moveTo(pad.l,H-pad.b);
+    data.forEach((d,i)=>{
+      const px=pad.l+xStep*i;
+      const py=pad.t+cH-((d.y-yMin)/(yMax-yMin))*cH;
+      ctx.lineTo(px,py);
+    });
+    ctx.lineTo(pad.l+xStep*(data.length-1),H-pad.b);
+    ctx.closePath();ctx.fill();
+
+    ctx.strokeStyle='#3b82f6';ctx.lineWidth=2.5;
+    ctx.beginPath();
+    data.forEach((d,i)=>{
+      const px=pad.l+xStep*i;
+      const py=pad.t+cH-((d.y-yMin)/(yMax-yMin))*cH;
+      i===0?ctx.moveTo(px,py):ctx.lineTo(px,py);
+    });
+    ctx.stroke();
+
+    ctx.fillStyle='#3b82f6';
+    data.forEach((d,i)=>{
+      if(i%3===0){
+        const px=pad.l+xStep*i;
+        const py=pad.t+cH-((d.y-yMin)/(yMax-yMin))*cH;
+        ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
+      }
+    });
+  }
+};
+
+// ==================== 数据生成 ====================
+function rand(min,max){return Math.floor(Math.random()*(max-min)+min);}
+function genDailyData(days=30){
+  const d=[];
+  for(let i=0;i<days;i++){
+    const dt=new Date();dt.setDate(dt.getDate()-(days-1-i));
+    d.push({date:dt.toISOString().split('T')[0],active:rand(40000,60000),new:rand(2000,5000),revenue:rand(50000,150000),paying:rand(800,1500)});
+  }
+  return d;
+}
+function genWeeklyData(w=8){return Array.from({length:w},(_,i)=>({week:`第${w-i}周`,active:rand(250000,380000),new:rand(12000,32000),revenue:rand(350000,850000)})).reverse();}
+function genMonthlyData(m=6){return Array.from({length:m},(_,i)=>{const dt=new Date();dt.setMonth(dt.getMonth()-(m-1-i));return{month:`${dt.getMonth()+1}月`,active:rand(1100000,1600000),revenue:rand(1500000,3500000)};});}
+
+// ==================== 菜单配置 ====================
+const PAGES={
+  overview:{title:'KPI仪表盘',icon:'📊'},
+  realtime:{title:'实时数据',icon:'⚡'},
+  daily:{title:'每日数据',icon:'📅'},
+  weekly:{title:'每周数据',icon:'📆'},
+  monthly:{title:'每月数据',icon:'🗓️'},
+  region:{title:'地区对比',icon:'🌍'},
+  active:{title:'活跃',icon:'🔥'},
+  retention:{title:'留存',icon:'🧡'},
+  ltv:{title:'LTV',icon:'💎'},
+  returning:{title:'回流用户',icon:'🔄'},
+  funnel:{title:'转化率漏斗',icon:'🎯'},
+  recharge:{title:'付费数据-充值',icon:'💳'},
+  consume:{title:'付费数据-消耗',icon:'🛒'},
+  privilege:{title:'付费数据-特权卡',icon:'💰'},
+  gacha:{title:'抽卡分析',icon:'🎰'},
+  ads:{title:'投放数据',icon:'📢'}
+};
+
+const MENU_GROUPS=[
+  {title:'【基础运营数据】',ids:['overview','realtime','daily','weekly','monthly','region','active','retention','ltv','returning','funnel','recharge','consume','privilege','gacha']},
+  {title:'【游戏玩法数据】',ids:['pg1','pg2','pg3','card','event','subgame']},
+  {title:'【UA】数据',ids:['ads','ua1','ua2']}
+];
+
+let collapsed={},currentPage='overview';
+
+// ==================== HTML模板 ====================
+const FILTERS=`<div class="filters">
+  <div class="filter-group"><label>开始时间</label><input type="date"></div>
+  <div class="filter-group"><label>结束时间</label><input type="date"></div>
+  <div class="filter-group"><label>服务器</label><select><option>全部服务器</option><option>英文地区</option><option>韩国</option><option>港澳台</option></select></div>
+  <div class="filter-group"><label>终端</label><select><option>全部</option><option>iOS</option><option>Android</option></select></div>
+  <div class="filter-group"><label>账号类型</label><select><option>全部</option></select></div>
+</div>`;
+
+function placeholder(title){
+  const titles={pg1:'玩法1',pg2:'玩法2',pg3:'玩法3',card:'角色分析',event:'活动效果',subgame:'副玩法A',ua1:'待补充',ua2:'待补充'};
+  return`<div class="card"><div class="placeholder"><div class="placeholder-icon">🚧</div><h3>${titles[title]||'待补充'}</h3><p style="margin-top:8px;color:#94a3b8">功能开发中...</p></div></div>`;
+}
+
+// ==================== 页面渲染 ====================
+function renderPage(){
+  document.getElementById('pageTitle').textContent=PAGES[currentPage]?.title||'页面开发中';
+  const b=document.getElementById('pageBody');
+
+  switch(currentPage){
+    case 'overview':{
+      b.innerHTML=`
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">DAU</div><div class="kpi-value">115,832</div><div class="kpi-change kpi-up">↑ 8.5%</div></div>
+          <div class="kpi-card"><div class="kpi-label">今日收入</div><div class="kpi-value">¥128,560</div><div class="kpi-change kpi-up">↑ 12.3%</div></div>
+          <div class="kpi-card"><div class="kpi-label">新增用户</div><div class="kpi-value">22,156</div><div class="kpi-change kpi-up">↑ 15.8%</div></div>
+          <div class="kpi-card"><div class="kpi-label">付费率</div><div class="kpi-value">3.2%</div><div class="kpi-change kpi-down">↓ 0.5%</div></div>
+        </div>
+        <div class="card"><h3>KPI趋势（近7日）</h3><div class="chart-container"><canvas id="chartOverview"></canvas></div></div>`;
+      setTimeout(()=>{
+        Chart.line('chartOverview',[
+          {name:'DAU',data:[{x:'周一',y:105000},{x:'周二',y:112000},{x:'周三',y:108000},{x:'周四',y:115000},{x:'周五',y:118000},{x:'周六',y:125000},{x:'周日',y:122000}]},
+          {name:'收入',data:[{x:'周一',y:95000},{x:'周二',y:102000},{x:'周三',y:98000},{x:'周四',y:108000},{x:'周五',y:115000},{x:'周六',y:128000},{x:'周日',y:122000}]}
+        ]);
+      },50);
+      break;}
+
+    case 'realtime':{
+      b.innerHTML=`
+        ${FILTERS}
+        <div class="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">当前在线人数</div><div class="kpi-value">12,458</div><div class="kpi-change kpi-up">↑ 8.5%</div></div>
+          <div class="kpi-card"><div class="kpi-label">今日活跃账号</div><div class="kpi-value">45,892</div><div class="kpi-change kpi-down">↓ 3.2%</div></div>
+          <div class="kpi-card"><div class="kpi-label">今日新增账号</div><div class="kpi-value">3,256</div><div class="kpi-change kpi-up">↑ 15.8%</div></div>
+          <div class="kpi-card"><div class="kpi-label">今日收入</div><div class="kpi-value">¥128,560</div><div class="kpi-change kpi-up">↑ 12.3%</div></div>
+        </div>
+        <div class="card"><h3>实时在线趋势（24小时）</h3><div class="chart-container"><canvas id="chartRT"></canvas></div></div>`;
+      const rtData=[];
+      for(let h=0;h<24;h++){
+        const base=9000+Math.sin((h-12)/3)*6000;
+        rtData.push({x:h.toString().padStart(2,'0')+':00',y:Math.floor(base+rand(-3000,3000))});
+      }
+      setTimeout(()=>Chart.area('chartRT',{data:rtData}),50);
+      break;}
+
+    case 'daily':
+      b.innerHTML=`${FILTERS}<div class="card"><h3>日报明细</h3><table><thead><tr><th>日期</th><th>活跃账号数</th><th>新增账号数</th><th>总收入</th><th>付费账号数</th></tr></thead><tbody>${genDailyData(15).map(d=>`<tr><td>${d.date}</td><td>${d.active.toLocaleString()}</td><td>${d.new.toLocaleString()}</td><td>¥${d.revenue.toLocaleString()}</td><td>${d.paying.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+      break;
+
+    case 'weekly':
+      b.innerHTML=`${FILTERS}<div class="card"><h3>周报明细</h3><table><thead><tr><th>周</th><th>周活跃账号数</th><th>周新增账号数</th><th>周总收入</th></tr></thead><tbody>${genWeeklyData().map(d=>`<tr><td>${d.week}</td><td>${d.active.toLocaleString()}</td><td>${d.new.toLocaleString()}</td><td>¥${d.revenue.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+      break;
+
+    case 'monthly':
+      b.innerHTML=`${FILTERS}<div class="card"><h3>月报明细</h3><table><thead><tr><th>月份</th><th>月活跃账号数</th><th>月总收入</th></tr></thead><tbody>${genMonthlyData().map(d=>`<tr><td>${d.month}</td><td>${d.active.toLocaleString()}</td><td>¥${d.revenue.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+      break;
+
+    case 'region':{
+      b.innerHTML=`${FILTERS}
+        <div class="card"><h3>DAU对比（最近30天）</h3><div class="chart-container"><canvas id="chartRegionDAU"></canvas></div></div>
+        <div class="card"><h3>MAU对比（最近12个月）</h3><div class="chart-container"><canvas id="chartRegionMAU"></canvas></div></div>`;
+      const dau=[],mau=[];
+      for(let i=0;i<30;i++){const dt=new Date();dt.setDate(dt.getDate()-(29-i));dau.push({x:dt.toISOString().split('T')[0],en:rand(38000,55000),kr:rand(22000,36000),tw:rand(19000,31000)});}
+      for(let i=1;i<=12;i++)mau.push({x:i+'月',en:rand(700000,1000000),kr:rand(400000,650000),tw:rand(380000,550000)});
+      setTimeout(()=>{
+        Chart.line('chartRegionDAU',[{name:'地区A',data:dau.map(d=>({x:d.x,y:d.en}))},{name:'地区B',data:dau.map(d=>({x:d.x,y:d.kr}))},{name:'地区C',data:dau.map(d=>({x:d.x,y:d.tw}))}]);
+        Chart.line('chartRegionMAU',[{name:'地区A',data:mau.map(d=>({x:d.x,y:d.en}))},{name:'地区B',data:mau.map(d=>({x:d.x,y:d.kr}))},{name:'地区C',data:mau.map(d=>({x:d.x,y:d.tw}))}]);
+      },50);
+      break;}
+
+    case 'active':{
+      b.innerHTML=`${FILTERS}
+        <div class="card"><h3>活跃用户趋势</h3><div class="chart-container"><canvas id="chartActive"></canvas></div></div>
+        <div class="card"><h3>活跃明细</h3><table><thead><tr><th>日期</th><th>DAU</th><th>新增用户</th></tr></thead><tbody>${genDailyData(10).map(d=>`<tr><td>${d.date}</td><td>${d.active.toLocaleString()}</td><td>${d.new.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+      const act=[];
+      for(let i=0;i<30;i++){const dt=new Date();dt.setDate(dt.getDate()-(29-i));act.push({x:dt.toISOString().split('T')[0],dau:rand(105000,135000),nu:rand(18000,30000)});}
+      setTimeout(()=>Chart.line('chartActive',[{name:'DAU',data:act.map(d=>({x:d.x,y:d.dau}))},{name:'新增用户',data:act.map(d=>({x:d.x,y:d.nu}))}]),50);
+      break;}
+
+    case 'retention':
+      b.innerHTML=`${FILTERS}
+        <div class="card"><h3>留存率明细</h3><table style="font-size:11px"><thead><tr><th>日期</th><th>1留</th><th>3留</th><th>7留</th><th>14留</th><th>30留</th><th>60留</th><th>90留</th></tr></thead><tbody>
+          <tr><td>新增账号</td><td style="color:#22c55e;font-weight:600">45.2%</td><td style="color:#22c55e;font-weight:600">32.5%</td><td style="color:#f59e0b;font-weight:600">25.8%</td><td>20.1%</td><td>15.2%</td><td>10.5%</td><td>7.8%</td></tr>
+          <tr><td>2026-04-19</td><td>45.2%</td><td>32.5%</td><td>25.8%</td><td>20.1%</td><td>15.2%</td><td>10.5%</td><td>7.8%</td></tr>
+          <tr><td>2026-04-18</td><td>44.8%</td><td>31.9%</td><td>25.2%</td><td>19.5%</td><td>14.8%</td><td>10.1%</td><td>-</td></tr>
+          <tr><td>2026-04-17</td><td>45.5%</td><td>33.1%</td><td>26.2%</td><td>20.5%</td><td>15.5%</td><td>-</td><td>-</td></tr>
+        </tbody></table></div>`;
+      break;
+
+    case 'ltv':
+      b.innerHTML=`${FILTERS}<div class="card"><h3>LTV明细</h3><table style="font-size:11px"><thead><tr><th>日期</th><th>LTV1</th><th>LTV3</th><th>LTV7</th><th>LTV14</th><th>LTV30</th><th>LTV60</th><th>LTV90</th></tr></thead><tbody>
+        <tr><td>新增账号</td><td>¥8.50</td><td>¥18.20</td><td>¥28.50</td><td>¥38.20</td><td>¥52.80</td><td>¥68.50</td><td>¥82.30</td></tr>
+        <tr><td>2026-04-19</td><td>¥8.50</td><td>¥18.20</td><td>¥28.50</td><td>¥38.20</td><td>¥52.80</td><td>¥68.50</td><td>¥82.30</td></tr>
+        <tr><td>2026-04-18</td><td>¥8.20</td><td>¥17.80</td><td>¥27.90</td><td>¥37.50</td><td>¥51.20</td><td>¥66.80</td><td>-</td></tr>
+      </tbody></table></div>`;
+      break;
+
+    case 'returning':
+      b.innerHTML=`${FILTERS}
+        <div class="card"><h3>每日回流用户留存</h3><table style="font-size:10px"><thead><tr><th>日期</th><th>回流数</th><th>1留</th><th>3留</th><th>7留</th><th>14留</th><th>30留</th><th>60留</th><th>90留</th><th>180留</th><th>360留</th></tr></thead><tbody>
+          <tr><td>2026-04-19</td><td>8,500</td><td style="color:#22c55e">68.5%</td><td style="color:#22c55e">52.3%</td><td style="color:#f59e0b">42.1%</td><td>35.2%</td><td>28.5%</td><td>22.1%</td><td>18.5%</td><td>12.3%</td><td>8.5%</td></tr>
+          <tr><td>2026-04-18</td><td>8,200</td><td>67.8%</td><td>51.5%</td><td>41.5%</td><td>34.8%</td><td>28.0%</td><td>21.5%</td><td>18.0%</td><td>-</td><td>-</td></tr>
+        </tbody></table></div>
+        <div class="card"><h3>每日回流用户LTV</h3><table style="font-size:10px"><thead><tr><th>日期</th><th>回流数</th><th>LTV1</th><th>LTV3</th><th>LTV7</th><th>LTV14</th><th>LTV30</th><th>LTV60</th><th>LTV90</th><th>LTV180</th><th>LTV360</th></tr></thead><tbody>
+          <tr><td>2026-04-19</td><td>8,500</td><td>¥12.50</td><td>¥28.20</td><td>¥42.50</td><td>¥58.20</td><td>¥78.80</td><td>¥98.50</td><td>¥118.30</td><td>¥165.50</td><td>¥220.80</td></tr>
+        </tbody></table></div>`;
+      break;
+
+    case 'funnel':
+      b.innerHTML=`<div class="card"><h3>转化率漏斗</h3><div class="funnel-container">
+        ${[{l:'曝光',v:1000000,r:'100%'},{l:'点击',v:250000,r:'25%'},{l:'下载',v:125000,r:'12.5%'},{l:'注册',v:100000,r:'10%'},{l:'活跃',v:45000,r:'4.5%'},{l:'付费',v:2500,r:'0.25%'}].map(f=>`<div class="funnel-row"><div class="funnel-label">${f.l}</div><div class="funnel-bar-wrap"><div class="funnel-bar-fill"style="width:${f.r}"><span class="funnel-bar-value">${f.v.toLocaleString()}</span></div></div><div class="funnel-rate">${f.r}</div></div>`).join('')}
+      </div></div>`;
+      break;
+
+    case 'recharge':
+      b.innerHTML=`${FILTERS}<div class="card"><h3>商品销售明细数据</h3><table><thead><tr><th>日期</th><th>商品名称</th><th>商品ID</th><th>购买人数</th><th>总销量</th><th>iOS</th><th>Android</th><th>官方包</th><th>WEB商城</th></tr></thead><tbody>
+        ${[{d:'2026-04-19',n:'月卡(30元)',id:'P001',b:4500,t:135000,ios:81000,and:40500,of:9000,w:4500},{d:'2026-04-19',n:'月卡(68元)',id:'P002',b:3200,t:217600,ios:130560,and:65280,of:13056,w:8704},{d:'2026-04-19',n:'首充礼包',id:'P003',b:8500,t:127500,ios:76500,and:38250,of:8500,w:4250},{d:'2026-04-18',n:'648钻石包',id:'P004',b:12000,t:777600,ios:466560,and:233280,of:46656,w:31104},{d:'2026-04-18',n:'328钻石包',id:'P005',b:8500,t:278800,ios:167280,and:83640,of:16728,w:11152},{d:'2026-04-17',n:'98钻石包',id:'P006',b:18000,t:176400,ios:105840,and:52920,of:10584,w:7056},{d:'2026-04-17',n:'30钻石包',id:'P007',b:45000,t:135000,ios:81000,and:40500,of:9000,w:4500}].map(i=>`<tr><td>${i.d}</td><td>${i.n}</td><td>${i.id}</td><td>${i.b.toLocaleString()}</td><td>¥${i.t.toLocaleString()}</td><td>${i.ios.toLocaleString()}</td><td>${i.and.toLocaleString()}</td><td>${i.of.toLocaleString()}</td><td>${i.w.toLocaleString()}</td></tr>`).join('')}
+      </tbody></table></div>`;
+      break;
+
+    case 'consume':
+      b.innerHTML=`${FILTERS}<div class="card"><h3>消耗明细</h3><table><thead><tr><th>日期</th><th>消耗类型</th><th>消耗金额</th><th>消耗人数</th></tr></thead><tbody>${[{d:'2026-04-19',i:'体力',c:125000,u:45000},{d:'2026-04-19',i:'抽卡',c:250000,u:28000},{d:'2026-04-19',i:'服装',c:85000,u:15000},{d:'2026-04-18',i:'体力',c:118000,u:42000},{d:'2026-04-18',i:'抽卡',c:235000,u:26500}].map(r=>`<tr><td>${r.d}</td><td>${r.i}</td><td>¥${r.c.toLocaleString()}</td><td>${r.u.toLocaleString()}</td></tr>`).join('')}</tbody></table></div>`;
+      break;
+
+    case 'privilege':
+      b.innerHTML=`${FILTERS}
+        <div class="card"><h3>特权卡购买明细数据</h3><table style="font-size:12px"><thead><tr><th style="padding:8px 5px">日期</th><th style="padding:8px 5px">总计充值</th><th style="padding:8px 5px">月卡</th><th style="padding:8px 5px">通行证</th><th style="padding:8px 5px">特权卡1</th><th style="padding:8px 5px">特权卡2</th><th style="padding:8px 5px">特权卡3</th><th style="padding:8px 5px">特权卡4</th><th style="padding:8px 5px">特权卡5</th><th style="padding:8px 5px">特权卡X</th></tr></thead><tbody>
+          ${[{d:'2026-04-19',t:158200,m:47400,p:32600,b1:28500,b2:18500,b3:12800,b4:9200,b5:5200,a:4000},{d:'2026-04-18',t:145600,m:43680,p:30120,b1:26280,b2:17080,b3:11840,b4:8520,b5:4800,a:3280}].map(r=>`<tr><td style="padding:6px">${r.d}</td><td style="padding:6px">${r.t.toLocaleString()}</td><td style="padding:6px">${r.m.toLocaleString()}</td><td style="padding:6px">${r.p.toLocaleString()}</td><td style="padding:6px">${r.b1.toLocaleString()}</td><td style="padding:6px">${r.b2.toLocaleString()}</td><td style="padding:6px">${r.b3.toLocaleString()}</td><td style="padding:6px">${r.b4.toLocaleString()}</td><td style="padding:6px">${r.b5.toLocaleString()}</td><td style="padding:6px">${r.a.toLocaleString()}</td></tr>`).join('')}
+        </tbody></table></div>
+        <div class="card"><h3>特权卡订阅&续期明细数据</h3><table style="font-size:12px"><thead><tr><th style="padding:8px 5px">日期</th><th style="padding:8px 5px">特权卡类型</th><th style="padding:8px 5px">当前订阅</th><th style="padding:8px 5px">本期新增</th><th style="padding:8px 5px">上期续费</th><th style="padding:8px 5px">续费率</th></tr></thead><tbody>
+          ${[{d:'2026-04-19',ct:'月卡',cs:15800,n:3300,pr:12500,rr:'79.1%'},{d:'2026-04-19',ct:'通行证',cs:8200,n:1500,pr:6700,rr:'81.7%'},{d:'2026-04-19',ct:'特权卡1',cs:5600,n:1200,pr:4400,rr:'78.6%'},{d:'2026-04-19',ct:'特权卡2',cs:4200,n:900,pr:3300,rr:'78.6%'},{d:'2026-04-19',ct:'特权卡3',cs:3200,n:700,pr:2500,rr:'77.8%'},{d:'2026-04-19',ct:'特权卡4',cs:2800,n:600,pr:2200,rr:'76.5%'},{d:'2026-04-19',ct:'特权卡5',cs:2400,n:500,pr:1900,rr:'75.8%'},{d:'2026-04-19',ct:'特权卡X',cs:1800,n:400,pr:1400,rr:'78.2%'}].map(r=>`<tr><td style="padding:6px">${r.d}</td><td style="padding:6px">${r.ct}</td><td style="padding:6px">${r.cs.toLocaleString()}</td><td style="padding:6px">${r.n.toLocaleString()}</td><td style="padding:6px">${r.pr.toLocaleString()}</td><td style="padding:6px">${r.rr}</td></tr>`).join('')}
+        </tbody></table></div>`;
+      break;
+
+    default:
+      b.innerHTML=placeholder(currentPage);
+  }
+}
+
+// ==================== 菜单渲染 ====================
+function renderMenu(){
+  const nav=document.getElementById('navMenu');
+  nav.innerHTML=MENU_GROUPS.map((g,gi)=>{
+    const col=collapsed[gi];
+    return`<div class="menu-group">
+      <div class="menu-group-title ${col?'collapsed':''}" onclick="toggleGroup(${gi})"><span>${g.title}</span><span class="arrow">▼</span></div>
+      <div class="menu-group-items ${col?'':'expanded'}">
+        ${g.ids.map(id=>{
+          const p=PAGES[id]||{title:'待补充',icon:'📦'};
+          return`<div class="menu-item ${currentPage===id?'active':''}" onclick="go('${id}')"><span>${p.icon}</span><span>${p.title}</span></div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleGroup(gi){collapsed[gi]=!collapsed[gi];renderMenu();}
+function go(id){currentPage=id;renderMenu();renderPage();}
+
+// ==================== 初始化 & 响应式 ====================
+window.onload=()=>{renderMenu();renderPage();};
+let resizeTimer;
+window.onresize=()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(renderPage,200);};
+</script>
+</body>
+</html>

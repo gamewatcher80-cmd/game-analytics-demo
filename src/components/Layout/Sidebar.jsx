@@ -33,7 +33,12 @@ const menuGroups = [
       { id: 'mission', label: '任务', icon: '✅' },
       { id: 'activity', label: '活动', icon: '🎪' },
       { id: 'social', label: '社交', icon: '💬' },
-      { id: 'anon-tokyo-store', label: '副玩法', icon: '🎲' },
+    ]
+  },
+  {
+    title: '【副玩法数据】',
+    items: [
+      { id: 'anon-tokyo-store', label: '商店副玩法', icon: '🎲' },
     ]
   },
   {

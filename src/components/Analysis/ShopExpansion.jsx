@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
-  BarChart, Bar
-} from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const ShopExpansion = ({ currentRegion }) => {
   const [dateRange, setDateRange] = useState({
@@ -22,55 +19,20 @@ const ShopExpansion = ({ currentRegion }) => {
     });
   };
 
-  // 2. 扩张成功率（30天趋势）
-  const generateSuccessRateData = () => {
+  // 2. 每日扩张次数（30天趋势）
+  const generateExpansionCountData = () => {
     return Array.from({ length: 30 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (29 - i));
       return {
         date: date.toISOString().split('T')[0],
-        successRate: (30 + Math.random() * 40).toFixed(2),
-      };
-    });
-  };
-
-  // 3. 扩张失败原因分布（按日期堆积柱状图）
-  const generateFailureReasonData = () => {
-    return Array.from({ length: 30 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (29 - i));
-      const total = Math.floor(800 + Math.random() * 1200);
-      return {
-        date: date.toISOString().split('T')[0],
-        popularity: Math.floor(total * 0.25),
-        silver: Math.floor(total * 0.30),
-        medal: Math.floor(total * 0.22),
-        level: Math.floor(total * 0.23),
-      };
-    });
-  };
-
-  // 4. 各扩张档位成功人数（按日期堆积柱状图）
-  const generateExpansionTierData = () => {
-    return Array.from({ length: 30 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (29 - i));
-      return {
-        date: date.toISOString().split('T')[0],
-        tier1: Math.floor(700 + Math.random() * 500),
-        tier2: Math.floor(600 + Math.random() * 400),
-        tier3: Math.floor(500 + Math.random() * 350),
-        tier4: Math.floor(400 + Math.random() * 300),
-        tier5: Math.floor(250 + Math.random() * 200),
-        tier6: Math.floor(100 + Math.random() * 150),
+        successCount: Math.floor(1200 + Math.random() * 2000),
       };
     });
   };
 
   const expansionTryData = generateExpansionTryData();
-  const successRateData = generateSuccessRateData();
-  const failureReasonData = generateFailureReasonData();
-  const expansionTierData = generateExpansionTierData();
+  const expansionCountData = generateExpansionCountData();
 
   const customTooltipStyle = {
     background: 'var(--bg-card)',
@@ -137,55 +99,17 @@ const ShopExpansion = ({ currentRegion }) => {
         </ResponsiveContainer>
       </div>
 
-      {/* 2. 扩张成功率 */}
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>扩张成功率</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={successRateData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-            <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
-            <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} unit="%" />
-            <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Line type="monotone" dataKey="successRate" stroke="#22c55e" strokeWidth={2} name="成功率(%)" dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* 3. 扩张失败原因分布 */}
-      <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>扩张失败原因分布</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={failureReasonData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-            <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
-            <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
-            <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
-            <Bar dataKey="popularity" stackId="a" fill="#3b82f6" name="人气不足" />
-            <Bar dataKey="silver" stackId="a" fill="#22c55e" name="银币不足" />
-            <Bar dataKey="medal" stackId="a" fill="#f59e0b" name="勋章不足" />
-            <Bar dataKey="level" stackId="a" fill="#ef4444" name="等级不足" />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* 4. 各扩张档位成功人数 */}
+      {/* 2. 每日扩张次数 */}
       <div className="card">
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>各扩张档位成功人数</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日扩张次数</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={expansionTierData}>
+          <LineChart data={expansionCountData}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
-            <Bar dataKey="tier1" stackId="a" fill="#3b82f6" name="第1档" />
-            <Bar dataKey="tier2" stackId="a" fill="#22c55e" name="第2档" />
-            <Bar dataKey="tier3" stackId="a" fill="#f59e0b" name="第3档" />
-            <Bar dataKey="tier4" stackId="a" fill="#ef4444" name="第4档" />
-            <Bar dataKey="tier5" stackId="a" fill="#8b5cf6" name="第5档" />
-            <Bar dataKey="tier6" stackId="a" fill="#06b6d4" name="第6档" />
-          </BarChart>
+            <Line type="monotone" dataKey="successCount" stroke="#22c55e" strokeWidth={2} name="扩张次数" dot={false} />
+          </LineChart>
         </ResponsiveContainer>
       </div>
     </div>

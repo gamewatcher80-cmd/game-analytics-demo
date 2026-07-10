@@ -38,7 +38,11 @@ const menuGroups = [
   {
     title: '【副玩法数据】',
     items: [
-      { id: 'anon-tokyo-store', label: '商店副玩法', icon: '🎲' },
+      { id: 'at-overview', label: 'AT总览', icon: '🏪' },
+      { id: 'at-level-distribution', label: 'AT等级分布', icon: '📈' },
+      { id: 'shop-expansion', label: '店铺扩张情况', icon: '🏗️' },
+      { id: 'silver-coin-medal', label: '银币/勋章', icon: '🪙' },
+      { id: 'at-mission', label: '任务', icon: '📋' },
     ]
   },
   {

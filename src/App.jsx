@@ -21,10 +21,15 @@ import ActiveData from './components/Analysis/ActiveData';
 import PaymentRecharge from './components/Analysis/PaymentRecharge';
 import PaymentConsume from './components/Analysis/PaymentConsume';
 import PaymentPrivilege from './components/Analysis/PaymentPrivilege';
-import AnonTokyoStore from './components/Analysis/AnonTokyoStore';
 import AdsData from './components/Analysis/AdsData';
 import InGameAds from './components/Analysis/InGameAds';
 import SimplifiedCNUser from './components/Analysis/SimplifiedCNUser';
+// 副玩法数据
+import ATOverview from './components/Analysis/ATOverview';
+import ATLevelDistribution from './components/Analysis/ATLevelDistribution';
+import ShopExpansion from './components/Analysis/ShopExpansion';
+import SilverCoinMedal from './components/Analysis/SilverCoinMedal';
+import ATMission from './components/Analysis/ATMission';
 
 const pageTitles = {
   // KPI 仪表盘（第1位）
@@ -42,8 +47,13 @@ const pageTitles = {
   'payment-recharge': '付费数据-充值',
   'payment-consume': '付费数据-消耗',
   'payment-privilege': '付费数据-特权卡',
-  'anon-tokyo-store': '商店副玩法',
   ads: '投放数据',
+  // 副玩法数据
+  'at-overview': 'AT总览',
+  'at-level-distribution': 'AT等级分布',
+  'shop-expansion': '店铺扩张情况',
+  'silver-coin-medal': '银币/勋章',
+  'at-mission': '任务',
   // 原有标签
 'user-behavior': '用户行为分析',
       gacha: '抽卡分析',
@@ -86,8 +96,16 @@ function App() {
         return <PaymentConsume currentRegion={currentRegion} />;
       case 'payment-privilege':
         return <PaymentPrivilege currentRegion={currentRegion} />;
-      case 'anon-tokyo-store':
-        return <AnonTokyoStore currentRegion={currentRegion} />;
+      case 'at-overview':
+        return <ATOverview currentRegion={currentRegion} />;
+      case 'at-level-distribution':
+        return <ATLevelDistribution currentRegion={currentRegion} />;
+      case 'shop-expansion':
+        return <ShopExpansion currentRegion={currentRegion} />;
+      case 'silver-coin-medal':
+        return <SilverCoinMedal currentRegion={currentRegion} />;
+      case 'at-mission':
+        return <ATMission currentRegion={currentRegion} />;
       case 'in-game-ads':
         return <InGameAds currentRegion={currentRegion} />;
       case 'ads':

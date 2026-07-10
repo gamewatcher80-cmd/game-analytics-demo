@@ -50,18 +50,27 @@ const ShopExpansion = ({ currentRegion }) => {
     });
   };
 
-  // 4. 各扩张档位成功率（柱状图）
-  const expansionTierSuccessData = [
-    { tier: '小摊', successRate: 72.5 },
-    { tier: '小店', successRate: 65.3 },
-    { tier: '中型店', successRate: 55.8 },
-    { tier: '大型店', successRate: 42.1 },
-    { tier: '旗舰店', successRate: 28.6 },
-  ];
+  // 4. 各扩张档位成功人数（按日期堆积柱状图）
+  const generateExpansionTierData = () => {
+    return Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (29 - i));
+      return {
+        date: date.toISOString().split('T')[0],
+        tier1: Math.floor(700 + Math.random() * 500),
+        tier2: Math.floor(600 + Math.random() * 400),
+        tier3: Math.floor(500 + Math.random() * 350),
+        tier4: Math.floor(400 + Math.random() * 300),
+        tier5: Math.floor(250 + Math.random() * 200),
+        tier6: Math.floor(100 + Math.random() * 150),
+      };
+    });
+  };
 
   const expansionTryData = generateExpansionTryData();
   const successRateData = generateSuccessRateData();
   const failureReasonData = generateFailureReasonData();
+  const expansionTierData = generateExpansionTierData();
 
   const customTooltipStyle = {
     background: 'var(--bg-card)',
@@ -160,16 +169,22 @@ const ShopExpansion = ({ currentRegion }) => {
         </ResponsiveContainer>
       </div>
 
-      {/* 4. 各扩张档位成功率 */}
+      {/* 4. 各扩张档位成功人数 */}
       <div className="card">
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>各扩张档位成功率</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>各扩张档位成功人数</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={expansionTierSuccessData}>
+          <BarChart data={expansionTierData}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-            <XAxis dataKey="tier" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
-            <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} unit="%" />
+            <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
+            <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Bar dataKey="successRate" fill="#f59e0b" name="成功率(%)" radius={[4, 4, 0, 0]} />
+            <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
+            <Bar dataKey="tier1" stackId="a" fill="#3b82f6" name="第1档" />
+            <Bar dataKey="tier2" stackId="a" fill="#22c55e" name="第2档" />
+            <Bar dataKey="tier3" stackId="a" fill="#f59e0b" name="第3档" />
+            <Bar dataKey="tier4" stackId="a" fill="#ef4444" name="第4档" />
+            <Bar dataKey="tier5" stackId="a" fill="#8b5cf6" name="第5档" />
+            <Bar dataKey="tier6" stackId="a" fill="#06b6d4" name="第6档" />
           </BarChart>
         </ResponsiveContainer>
       </div>

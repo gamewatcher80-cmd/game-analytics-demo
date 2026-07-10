@@ -188,7 +188,7 @@ const ATOverview = ({ currentRegion }) => {
       {/* 6. AT日报明细 */}
       <div className="card" style={{ marginBottom: '20px' }}>
         <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>AT日报明细</h3>
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflow: 'auto', maxHeight: '340px' }}>
           <table>
             <thead>
               <tr>
@@ -225,7 +225,7 @@ const ATOverview = ({ currentRegion }) => {
       {/* 7. AT留存率 */}
       <div className="card">
         <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>AT留存率</h3>
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflow: 'auto', maxHeight: '340px' }}>
           <table>
             <thead>
               <tr>

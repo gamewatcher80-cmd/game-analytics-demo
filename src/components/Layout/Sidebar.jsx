@@ -42,7 +42,7 @@ const menuGroups = [
     ]
   },
   {
-    title: '【UA】数据',
+    title: '【UA数据】',
     items: [
       { id: 'ads', label: '投放数据', icon: '📢' },
       { id: 'placeholder-ua-1', label: '待补充1', icon: '📦' },

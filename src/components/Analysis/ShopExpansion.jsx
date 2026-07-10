@@ -34,13 +34,21 @@ const ShopExpansion = ({ currentRegion }) => {
     });
   };
 
-  // 3. 扩张失败原因分布（柱状图）
-  const failureReasonData = [
-    { reason: '资源不足', count: 3200 },
-    { reason: '竞争失败', count: 2800 },
-    { reason: '条件不满足', count: 1500 },
-    { reason: '其他', count: 800 },
-  ];
+  // 3. 扩张失败原因分布（按日期堆积柱状图）
+  const generateFailureReasonData = () => {
+    return Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (29 - i));
+      const total = Math.floor(800 + Math.random() * 1200);
+      return {
+        date: date.toISOString().split('T')[0],
+        popularity: Math.floor(total * 0.25),
+        silver: Math.floor(total * 0.30),
+        medal: Math.floor(total * 0.22),
+        level: Math.floor(total * 0.23),
+      };
+    });
+  };
 
   // 4. 各扩张档位成功率（柱状图）
   const expansionTierSuccessData = [
@@ -53,6 +61,7 @@ const ShopExpansion = ({ currentRegion }) => {
 
   const expansionTryData = generateExpansionTryData();
   const successRateData = generateSuccessRateData();
+  const failureReasonData = generateFailureReasonData();
 
   const customTooltipStyle = {
     background: 'var(--bg-card)',
@@ -139,10 +148,14 @@ const ShopExpansion = ({ currentRegion }) => {
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={failureReasonData}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-            <XAxis dataKey="reason" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
+            <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Bar dataKey="count" fill="#ef4444" name="失败次数" radius={[4, 4, 0, 0]} />
+            <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
+            <Bar dataKey="popularity" stackId="a" fill="#3b82f6" name="人气不足" />
+            <Bar dataKey="silver" stackId="a" fill="#22c55e" name="银币不足" />
+            <Bar dataKey="medal" stackId="a" fill="#f59e0b" name="勋章不足" />
+            <Bar dataKey="level" stackId="a" fill="#ef4444" name="等级不足" />
           </BarChart>
         </ResponsiveContainer>
       </div>

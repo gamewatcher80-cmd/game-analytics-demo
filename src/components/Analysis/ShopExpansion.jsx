@@ -7,32 +7,21 @@ const ShopExpansion = ({ currentRegion }) => {
     endDate: new Date().toISOString().split('T')[0]
   });
 
-  // 1. 每日扩张尝试人数（30天趋势）
-  const generateExpansionTryData = () => {
+  // 生成30天扩张数据（人数 ≤ 次数，一人可扩张多次）
+  const generateExpansionData = () => {
     return Array.from({ length: 30 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (29 - i));
+      const userCount = Math.floor(1200 + Math.random() * 2800);
       return {
         date: date.toISOString().split('T')[0],
-        tryCount: Math.floor(2000 + Math.random() * 3000),
+        userCount,
+        expansionCount: Math.floor(userCount * (1.2 + Math.random() * 1.3)),
       };
     });
   };
 
-  // 2. 每日扩张次数（30天趋势）
-  const generateExpansionCountData = () => {
-    return Array.from({ length: 30 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (29 - i));
-      return {
-        date: date.toISOString().split('T')[0],
-        successCount: Math.floor(1200 + Math.random() * 2000),
-      };
-    });
-  };
-
-  const expansionTryData = generateExpansionTryData();
-  const expansionCountData = generateExpansionCountData();
+  const expansionData = generateExpansionData();
 
   const customTooltipStyle = {
     background: 'var(--bg-card)',
@@ -85,16 +74,16 @@ const ShopExpansion = ({ currentRegion }) => {
         </div>
       </div>
 
-      {/* 1. 每日扩张尝试人数 */}
+      {/* 1. 每日扩张人数 */}
       <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日扩张尝试人数</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日扩张人数</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={expansionTryData}>
+          <LineChart data={expansionData}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Line type="monotone" dataKey="tryCount" stroke="#3b82f6" strokeWidth={2} name="尝试人数" dot={false} />
+            <Line type="monotone" dataKey="userCount" stroke="#3b82f6" strokeWidth={2} name="扩张人数" dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -103,12 +92,12 @@ const ShopExpansion = ({ currentRegion }) => {
       <div className="card">
         <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日扩张次数</h3>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={expansionCountData}>
+          <LineChart data={expansionData}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
             <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Line type="monotone" dataKey="successCount" stroke="#22c55e" strokeWidth={2} name="扩张次数" dot={false} />
+            <Line type="monotone" dataKey="expansionCount" stroke="#22c55e" strokeWidth={2} name="扩张次数" dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

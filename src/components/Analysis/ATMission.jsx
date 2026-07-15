@@ -80,7 +80,7 @@ const ATMission = ({ currentRegion }) => {
       {/* 任务明细 */}
       <div className="card">
         <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>任务明细</h3>
-        <div style={{ overflow: 'auto', maxHeight: '600px' }}>
+        <div style={{ overflow: 'auto', maxHeight: '340px' }}>
           <table>
             <thead>
               <tr>

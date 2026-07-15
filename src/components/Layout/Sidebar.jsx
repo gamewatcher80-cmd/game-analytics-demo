@@ -26,13 +26,17 @@ const menuGroups = [
   {
     title: '【游戏玩法数据】',
     items: [
-      { id: 'level', label: '等级', icon: '⭐' },
-      { id: 'cultivation', label: '养成', icon: '🌱' },
-      { id: 'main-story', label: '主线章节', icon: '📖' },
-      { id: 'performance', label: '玩法', icon: '🎮' },
-      { id: 'mission', label: '任务', icon: '✅' },
-      { id: 'activity', label: '活动', icon: '🎪' },
-      { id: 'social', label: '社交', icon: '💬' },
+      { id: 'gameplay-player-level', label: '玩家人物等级', icon: '⭐' },
+      { id: 'gameplay-live-boost', label: '体力liveboost', icon: '⚡' },
+      { id: 'gameplay-song', label: '关卡(曲目)', icon: '🎵' },
+      { id: 'gameplay-cultivate-member', label: '养成-成员', icon: '🌱' },
+      { id: 'gameplay-cultivate-snapshot', label: '养成-快照', icon: '📸' },
+      { id: 'gameplay-cultivate-band', label: '养成-乐队', icon: '🎸' },
+      { id: 'gameplay-performance', label: '演奏/激奏', icon: '🎹' },
+      { id: 'gameplay-story', label: '剧情', icon: '📖' },
+      { id: 'gameplay-currency', label: '货币/资源', icon: '💰' },
+      { id: 'gameplay-item', label: '道具', icon: '🎒' },
+      { id: 'gameplay-mission', label: '任务', icon: '✅' },
     ]
   },
   {

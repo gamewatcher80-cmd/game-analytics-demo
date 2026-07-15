@@ -30,6 +30,18 @@ import ATLevelDistribution from './components/Analysis/ATLevelDistribution';
 import ShopExpansion from './components/Analysis/ShopExpansion';
 import SilverCoinMedal from './components/Analysis/SilverCoinMedal';
 import ATMission from './components/Analysis/ATMission';
+// 游戏玩法数据
+import PlayerLevel from './components/Gameplay/PlayerLevel';
+import LiveBoost from './components/Gameplay/LiveBoost';
+import Song from './components/Gameplay/Song';
+import CultivateMember from './components/Gameplay/CultivateMember';
+import CultivateSnapshot from './components/Gameplay/CultivateSnapshot';
+import CultivateBand from './components/Gameplay/CultivateBand';
+import PerformancePlay from './components/Gameplay/PerformancePlay';
+import Story from './components/Gameplay/Story';
+import CurrencyResource from './components/Gameplay/CurrencyResource';
+import Item from './components/Gameplay/Item';
+import Mission from './components/Gameplay/Mission';
 
 const pageTitles = {
   // KPI 仪表盘（第1位）
@@ -54,6 +66,18 @@ const pageTitles = {
   'shop-expansion': '店铺扩张情况',
   'silver-coin-medal': '银币/勋章',
   'at-mission': '任务',
+  // 游戏玩法数据
+  'gameplay-player-level': '玩家人物等级',
+  'gameplay-live-boost': '体力liveboost',
+  'gameplay-song': '关卡(曲目)',
+  'gameplay-cultivate-member': '养成-成员',
+  'gameplay-cultivate-snapshot': '养成-快照',
+  'gameplay-cultivate-band': '养成-乐队',
+  'gameplay-performance': '演奏/激奏',
+  'gameplay-story': '剧情',
+  'gameplay-currency': '货币/资源',
+  'gameplay-item': '道具',
+  'gameplay-mission': '任务',
   // 原有标签
 'user-behavior': '用户行为分析',
       gacha: '抽卡分析',
@@ -106,6 +130,29 @@ function App() {
         return <SilverCoinMedal currentRegion={currentRegion} />;
       case 'at-mission':
         return <ATMission currentRegion={currentRegion} />;
+      // 游戏玩法数据
+      case 'gameplay-player-level':
+        return <PlayerLevel currentRegion={currentRegion} />;
+      case 'gameplay-live-boost':
+        return <LiveBoost currentRegion={currentRegion} />;
+      case 'gameplay-song':
+        return <Song currentRegion={currentRegion} />;
+      case 'gameplay-cultivate-member':
+        return <CultivateMember currentRegion={currentRegion} />;
+      case 'gameplay-cultivate-snapshot':
+        return <CultivateSnapshot currentRegion={currentRegion} />;
+      case 'gameplay-cultivate-band':
+        return <CultivateBand currentRegion={currentRegion} />;
+      case 'gameplay-performance':
+        return <PerformancePlay currentRegion={currentRegion} />;
+      case 'gameplay-story':
+        return <Story currentRegion={currentRegion} />;
+      case 'gameplay-currency':
+        return <CurrencyResource currentRegion={currentRegion} />;
+      case 'gameplay-item':
+        return <Item currentRegion={currentRegion} />;
+      case 'gameplay-mission':
+        return <Mission currentRegion={currentRegion} />;
       case 'in-game-ads':
         return <InGameAds currentRegion={currentRegion} />;
       case 'ads':

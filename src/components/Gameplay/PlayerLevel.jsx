@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const PlayerLevel = ({ currentRegion }) => {
   const [dateRange, setDateRange] = useState({
@@ -22,17 +22,17 @@ const PlayerLevel = ({ currentRegion }) => {
     });
   };
 
-  // 生成30天人物等级均值（按地区分3条线）
+  // 生成今日人物等级分布（1~60级，按地区分3组柱状）
   const generateLevelData = () => {
-    return Array.from({ length: 30 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - (29 - i));
-      const factor = 1 + Math.sin((i / 30) * Math.PI * 2) * 0.05;
+    return Array.from({ length: 60 }, (_, i) => {
+      const level = i + 1;
+      // 分布形状：低等级多，中间稍多，高等级少
+      const baseValue = Math.exp(-Math.pow((level - 8) / 12, 2)) * 8000 + 200;
       return {
-        date: date.toISOString().split('T')[0],
-        tw: ((45 + Math.random() * 15) * factor).toFixed(2),
-        en: ((52 + Math.random() * 18) * factor).toFixed(2),
-        kr: ((48 + Math.random() * 16) * factor).toFixed(2),
+        level: `${level}级`,
+        tw: Math.floor(baseValue * 0.35 + Math.random() * 300),
+        en: Math.floor(baseValue * 0.55 + Math.random() * 400),
+        kr: Math.floor(baseValue * 0.40 + Math.random() * 350),
       };
     });
   };
@@ -117,16 +117,16 @@ const PlayerLevel = ({ currentRegion }) => {
       <div className="card">
         <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>人物等级</h3>
         <ResponsiveContainer width="100%" height={400}>
-          <LineChart data={levelData}>
+          <BarChart data={levelData}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
-            <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
-            <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
-            <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
+            <XAxis dataKey="level" stroke="var(--text-muted)" fontSize={10} tick={{fill: 'var(--text-muted)'}} angle={-45} textAnchor="end" height={60} interval={2} />
+            <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNum} />
+            <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} formatter={(v) => formatNum(v)} />
             <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
-            <Line type="monotone" dataKey="tw" stroke="#3b82f6" strokeWidth={2} name="港澳台" dot={false} />
-            <Line type="monotone" dataKey="en" stroke="#22c55e" strokeWidth={2} name="英文地区" dot={false} />
-            <Line type="monotone" dataKey="kr" stroke="#ef4444" strokeWidth={2} name="韩国" dot={false} />
-          </LineChart>
+            <Bar dataKey="tw" fill="#3b82f6" name="港澳台" />
+            <Bar dataKey="en" fill="#22c55e" name="英文地区" />
+            <Bar dataKey="kr" fill="#ef4444" name="韩国" />
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>

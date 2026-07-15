@@ -22,9 +22,9 @@ const PlayerLevel = ({ currentRegion }) => {
     });
   };
 
-  // 生成今日人物等级分布（1~60级，按地区分3组柱状）
+  // 生成今日人物等级分布（1~30级，按地区分3组柱状）
   const generateLevelData = () => {
-    return Array.from({ length: 60 }, (_, i) => {
+    return Array.from({ length: 30 }, (_, i) => {
       const level = i + 1;
       // 分布形状：低等级多，中间稍多，高等级少
       const baseValue = Math.exp(-Math.pow((level - 8) / 12, 2)) * 8000 + 200;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
 const LiveBoost = ({ currentRegion }) => {
   const [dateRange, setDateRange] = useState({
@@ -32,6 +32,15 @@ const LiveBoost = ({ currentRegion }) => {
     { song: '曲目5', amount: 6400 },
     { song: '曲目6', amount: 3900 },
   ];
+
+  // 多倍消耗选择情况（昨日）
+  const consumeChoiceData = [
+    { name: '1点消耗', value: 4500 },
+    { name: '2点消耗', value: 3200 },
+    { name: '3点消耗', value: 1800 },
+    { name: '全部消耗', value: 1500 },
+  ];
+  const pieColors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444'];
 
   const customTooltipStyle = {
     background: 'var(--bg-card)',
@@ -128,6 +137,30 @@ const LiveBoost = ({ currentRegion }) => {
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} formatter={(v) => formatNum(v)} />
             <Bar dataKey="amount" fill="#8b5cf6" name="消耗体力" radius={[0, 4, 4, 0]} />
           </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 4. 多倍消耗选择情况 */}
+      <div className="card">
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>多倍消耗选择情况</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <PieChart>
+            <Pie
+              data={consumeChoiceData}
+              cx="50%"
+              cy="50%"
+              outerRadius={140}
+              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(1)}%`}
+              labelLine={false}
+              dataKey="value"
+            >
+              {consumeChoiceData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+              ))}
+            </Pie>
+            <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
+            <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
+          </PieChart>
         </ResponsiveContainer>
       </div>
     </div>

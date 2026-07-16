@@ -142,7 +142,7 @@ const LiveBoost = ({ currentRegion }) => {
 
       {/* 4. 多倍消耗选择情况 */}
       <div className="card">
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>多倍消耗选择情况</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>多倍消耗选择情况（饼图表现4个模式下消耗体力的占比情况）</h3>
         <ResponsiveContainer width="100%" height={400}>
           <PieChart>
             <Pie

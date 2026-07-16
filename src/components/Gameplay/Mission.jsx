@@ -6,29 +6,6 @@ const Mission = ({ currentRegion }) => {
     endDate: new Date().toISOString().split('T')[0]
   });
 
-  // 任务信息明细（昨日）
-  const missionTypes = ['主线', '支线', '日常', '周常', '活动', '成就'];
-  const missionData = Array.from({ length: 60 }, (_, i) => {
-    const id = String(i + 1).padStart(3, '0');
-    const type = missionTypes[i % 6];
-    const userCount = Math.floor(2000 + Math.random() * 15000);
-    return {
-      id,
-      name: `任务${id}`,
-      type,
-      target: `完成${1 + (i % 5)}次指定操作`,
-      reward: `${100 + (i % 9) * 100}金币 + ${50 + (i % 5) * 50}经验`,
-      userCount,
-      completeCount: Math.floor(userCount * (1.1 + Math.random() * 1.5)),
-    };
-  });
-
-  const formatNum = (num) => {
-    if (num >= 10000) return (num / 10000).toFixed(1) + '万';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-    return num.toLocaleString();
-  };
-
   return (
     <div style={{ padding: '24px' }}>
       <div className="card" style={{ marginBottom: '20px', padding: '16px' }}>
@@ -72,37 +49,21 @@ const Mission = ({ currentRegion }) => {
         </div>
       </div>
 
-      {/* 任务信息明细 */}
-      <div className="card">
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>任务信息明细</h3>
-        <div style={{ overflow: 'auto', maxHeight: '600px' }}>
-          <table>
-            <thead>
-              <tr>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>任务ID</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>任务名</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>任务类型</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>任务目标</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>任务奖励</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>完成人数</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>完成次数</th>
-              </tr>
-            </thead>
-            <tbody>
-              {missionData.map((item, index) => (
-                <tr key={index}>
-                  <td style={{ fontSize: '12px' }}>{item.id}</td>
-                  <td style={{ fontSize: '12px' }}>{item.name}</td>
-                  <td style={{ fontSize: '12px' }}>{item.type}</td>
-                  <td style={{ fontSize: '12px' }}>{item.target}</td>
-                  <td style={{ fontSize: '12px' }}>{item.reward}</td>
-                  <td style={{ fontSize: '12px' }}>{formatNum(item.userCount)}</td>
-                  <td style={{ fontSize: '12px' }}>{formatNum(item.completeCount)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '50vh',
+        padding: '40px'
+      }}>
+        <div style={{ fontSize: '64px', marginBottom: '20px' }}>✅</div>
+        <h2 style={{ fontSize: '20px', fontWeight: '600', color: 'var(--text-primary)', marginBottom: '12px' }}>
+          任务信息明细
+        </h2>
+        <p style={{ fontSize: '14px', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: '400px' }}>
+          暂时无任务相关事件，CB版本可忽略
+        </p>
       </div>
     </div>
   );

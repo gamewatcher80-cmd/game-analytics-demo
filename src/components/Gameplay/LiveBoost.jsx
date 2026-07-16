@@ -23,6 +23,16 @@ const LiveBoost = ({ currentRegion }) => {
     { way: '途径4', amount: 1500 },
   ];
 
+  // 曲目消耗体力情况（昨日）
+  const songEnergyData = [
+    { song: '曲目1', amount: 18000 },
+    { song: '曲目2', amount: 15200 },
+    { song: '曲目3', amount: 12500 },
+    { song: '曲目4', amount: 9800 },
+    { song: '曲目5', amount: 6400 },
+    { song: '曲目6', amount: 3900 },
+  ];
+
   const customTooltipStyle = {
     background: 'var(--bg-card)',
     border: '1px solid var(--border-color)',
@@ -103,6 +113,20 @@ const LiveBoost = ({ currentRegion }) => {
             <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNum} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} formatter={(v) => formatNum(v)} />
             <Bar dataKey="amount" fill="#f59e0b" name="消耗数量" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 3. 曲目消耗体力情况 */}
+      <div className="card">
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>曲目消耗体力情况</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={songEnergyData} layout="vertical">
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+            <XAxis type="number" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNum} />
+            <YAxis type="category" dataKey="song" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
+            <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} formatter={(v) => formatNum(v)} />
+            <Bar dataKey="amount" fill="#8b5cf6" name="消耗体力" radius={[0, 4, 4, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

@@ -6,25 +6,44 @@ const PerformancePlay = ({ currentRegion }) => {
     endDate: new Date().toISOString().split('T')[0]
   });
 
-  // 自由演出(单人) 按 stage_id 分组的昨日数据
-  const freePlayData = [
-    { stage: '曲目1', users: 18500, rate: 14.8, gamesPerUser: 2.6, avgDuration: 145, fullCombo: 32.5, fullPerfect: 18.3 },
-    { stage: '曲目2', users: 16200, rate: 12.9, gamesPerUser: 2.4, avgDuration: 138, fullCombo: 35.2, fullPerfect: 20.1 },
-    { stage: '曲目3', users: 14800, rate: 11.8, gamesPerUser: 2.3, avgDuration: 152, fullCombo: 28.7, fullPerfect: 15.6 },
-    { stage: '曲目4', users: 12500, rate: 9.9, gamesPerUser: 2.1, avgDuration: 165, fullCombo: 25.3, fullPerfect: 12.8 },
-    { stage: '曲目5', users: 9800, rate: 7.8, gamesPerUser: 1.9, avgDuration: 178, fullCombo: 22.1, fullPerfect: 10.5 },
-    { stage: '曲目6', users: 7200, rate: 5.7, gamesPerUser: 1.7, avgDuration: 192, fullCombo: 18.6, fullPerfect: 8.4 },
-  ];
+  // 自由演出(单人) 按天汇总的30日数据（所有曲目总计，stage_type = 1）
+  const generateFreePlayData = () => {
+    return Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (29 - i));
+      const factor = 1 + Math.sin((i / 30) * Math.PI * 2) * 0.1;
+      return {
+        date: `${date.getMonth() + 1}月${date.getDate()}日`,
+        users: Math.floor((50000 + Math.random() * 8000) * factor),
+        rate: ((12 + Math.random() * 6) * factor).toFixed(1),
+        gamesPerUser: (2.2 + Math.random() * 0.5).toFixed(1),
+        avgDuration: Math.floor((140 + Math.random() * 25) * factor),
+        fullCombo: (28 + Math.random() * 8).toFixed(1),
+        fullPerfect: (15 + Math.random() * 6).toFixed(1),
+      };
+    });
+  };
 
-  // 激奏演出(多人) 按 stage_id 分组的昨日数据
-  const hardPlayData = [
-    { stage: '曲目1', users: 9800, rate: 7.8, gamesPerUser: 1.5, avgDuration: 125, fullCombo: 25.3, fullPerfect: 12.6 },
-    { stage: '曲目2', users: 8500, rate: 6.8, gamesPerUser: 1.4, avgDuration: 132, fullCombo: 22.1, fullPerfect: 10.8 },
-    { stage: '曲目3', users: 7200, rate: 5.7, gamesPerUser: 1.3, avgDuration: 142, fullCombo: 19.8, fullPerfect: 9.2 },
-    { stage: '曲目4', users: 5800, rate: 4.6, gamesPerUser: 1.2, avgDuration: 156, fullCombo: 16.5, fullPerfect: 7.8 },
-    { stage: '曲目5', users: 4500, rate: 3.6, gamesPerUser: 1.1, avgDuration: 168, fullCombo: 14.2, fullPerfect: 6.1 },
-    { stage: '曲目6', users: 3200, rate: 2.5, gamesPerUser: 1.0, avgDuration: 185, fullCombo: 11.8, fullPerfect: 4.9 },
-  ];
+  // 激奏演出(多人) 按天汇总的30日数据（所有曲目总计，stage_type = 4）
+  const generateHardPlayData = () => {
+    return Array.from({ length: 30 }, (_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - (29 - i));
+      const factor = 1 + Math.sin((i / 30) * Math.PI * 2) * 0.1;
+      return {
+        date: `${date.getMonth() + 1}月${date.getDate()}日`,
+        users: Math.floor((35000 + Math.random() * 6000) * factor),
+        rate: ((7 + Math.random() * 4) * factor).toFixed(1),
+        gamesPerUser: (1.2 + Math.random() * 0.3).toFixed(1),
+        avgDuration: Math.floor((130 + Math.random() * 30) * factor),
+        fullCombo: (18 + Math.random() * 7).toFixed(1),
+        fullPerfect: (9 + Math.random() * 4).toFixed(1),
+      };
+    });
+  };
+
+  const freePlayData = generateFreePlayData();
+  const hardPlayData = generateHardPlayData();
 
   const formatNum = (num) => {
     if (num >= 10000) return (num / 10000).toFixed(1) + '万';
@@ -91,12 +110,14 @@ const PerformancePlay = ({ currentRegion }) => {
 
       {/* 1. 自由演出(单人) */}
       <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>自由演出(单人)</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>
+          自由演出-单人 <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '400' }}>(stage_type = 1)</span>
+        </h3>
         <div style={{ overflow: 'auto', maxHeight: '500px' }}>
           <table>
             <thead>
               <tr>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>曲目 (stage_id)</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>日期</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>参与人数</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>参与率</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>人均局数</th>
@@ -108,7 +129,7 @@ const PerformancePlay = ({ currentRegion }) => {
             <tbody>
               {freePlayData.map((item, index) => (
                 <tr key={index}>
-                  <td style={{ fontSize: '12px' }}>{item.stage}</td>
+                  <td style={{ fontSize: '12px' }}>{item.date}</td>
                   <td style={{ fontSize: '12px' }}>{formatNum(item.users)}</td>
                   <td style={{ fontSize: '12px' }}>{item.rate}%</td>
                   <td style={{ fontSize: '12px' }}>{item.gamesPerUser}</td>
@@ -124,12 +145,14 @@ const PerformancePlay = ({ currentRegion }) => {
 
       {/* 2. 激奏演出(多人) */}
       <div className="card">
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>激奏演出(多人)</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>
+          激奏演出-多人 <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '400' }}>(stage_type = 4)</span>
+        </h3>
         <div style={{ overflow: 'auto', maxHeight: '500px' }}>
           <table>
             <thead>
               <tr>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>曲目 (stage_id)</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>日期</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>参与人数</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>参与率</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>人均局数</th>
@@ -141,7 +164,7 @@ const PerformancePlay = ({ currentRegion }) => {
             <tbody>
               {hardPlayData.map((item, index) => (
                 <tr key={index}>
-                  <td style={{ fontSize: '12px' }}>{item.stage}</td>
+                  <td style={{ fontSize: '12px' }}>{item.date}</td>
                   <td style={{ fontSize: '12px' }}>{formatNum(item.users)}</td>
                   <td style={{ fontSize: '12px' }}>{item.rate}%</td>
                   <td style={{ fontSize: '12px' }}>{item.gamesPerUser}</td>

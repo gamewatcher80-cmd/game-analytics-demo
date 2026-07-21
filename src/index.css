@@ -207,10 +207,21 @@ tr:hover td {
 /* 响应式 */
 @media (max-width: 768px) {
   .card {
-    padding: 15px;
+    padding: 12px;
   }
   
   th, td {
-    padding: 8px 12px;
+    padding: 6px 8px;
+    font-size: 11px !important;
+  }
+
+  input, select {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  /* 移动端显示关闭按钮 */
+  .sidebar-close-btn {
+    display: flex !important;
   }
 }

@@ -59,7 +59,7 @@ const menuGroups = [
   }
 ];
 
-const Sidebar = ({ currentPage, onPageChange }) => {
+const Sidebar = ({ currentPage, onPageChange, onClose }) => {
   // 默认全部展开
   const [collapsedGroups, setCollapsedGroups] = useState({});
 
@@ -73,7 +73,7 @@ const Sidebar = ({ currentPage, onPageChange }) => {
   return (
     <div 
       style={{
-        width: '240px',
+        width: '100%',
         background: 'var(--bg-secondary)',
         height: '100vh',
         display: 'flex',
@@ -85,21 +85,43 @@ const Sidebar = ({ currentPage, onPageChange }) => {
       <div style={{
         padding: '20px',
         borderBottom: '1px solid var(--border-color)',
-        background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%)'
+        background: 'linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between'
       }}>
-        <h1 style={{
-          fontSize: '18px',
-          fontWeight: '700',
-          background: 'linear-gradient(90deg, var(--primary) 0%, #00ff88 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          marginBottom: '4px'
-        }}>
-          准备中项目
-        </h1>
-        <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-          数据分析平台
-        </p>
+        <div>
+          <h1 style={{
+            fontSize: '18px',
+            fontWeight: '700',
+            background: 'linear-gradient(90deg, var(--primary) 0%, #00ff88 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            marginBottom: '4px'
+          }}>
+            准备中项目
+          </h1>
+          <p style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+            数据分析平台
+          </p>
+        </div>
+        {/* 移动端关闭按钮 */}
+        <button
+          onClick={onClose}
+          className="sidebar-close-btn"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-secondary)',
+            cursor: 'pointer',
+            padding: '4px',
+            display: 'none',
+            fontSize: '20px',
+            lineHeight: 1
+          }}
+        >
+          ✕
+        </button>
       </div>
       
       {/* Menu */}

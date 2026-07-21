@@ -115,7 +115,7 @@ const Song = ({ currentRegion }) => {
 
       {/* 1. 每日曲目挑战排行(单人) */}
       <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日曲目挑战排行(单人)</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日曲目挑战排行(单人-自由演出)</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={dailySingleData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
@@ -131,7 +131,7 @@ const Song = ({ currentRegion }) => {
 
       {/* 2. 每日曲目挑战排行(多人) */}
       <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日曲目挑战排行(多人)</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日曲目挑战排行(多人-激奏演出)</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={dailyMultiData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
@@ -147,7 +147,7 @@ const Song = ({ currentRegion }) => {
 
       {/* 3. 7日曲目挑战排行(单人) */}
       <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>7日曲目挑战排行(单人)</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>7日曲目挑战排行(单人-自由演出)</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={weeklySingleData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
@@ -163,7 +163,7 @@ const Song = ({ currentRegion }) => {
 
       {/* 4. 7日曲目挑战排行(多人) */}
       <div className="card">
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>7日曲目挑战排行(多人)</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>7日曲目挑战排行(多人-激奏演出)</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={weeklyMultiData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />

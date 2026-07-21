@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+
+const barColors = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#84cc16'];
 
 const Song = ({ currentRegion }) => {
   const [dateRange, setDateRange] = useState({
@@ -120,7 +122,9 @@ const Song = ({ currentRegion }) => {
             <XAxis type="number" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNum} />
             <YAxis type="category" dataKey="song" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} width={80} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} formatter={(v) => formatNum(v)} />
-            <Bar dataKey="count" fill="#3b82f6" name="挑战次数" radius={[0, 4, 4, 0]} />
+            <Bar dataKey="count" name="挑战次数" radius={[0, 4, 4, 0]}>
+              {dailySingleData.map((entry, index) => <Cell key={`cell1-${index}`} fill={barColors[index % barColors.length]} />)}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -134,7 +138,9 @@ const Song = ({ currentRegion }) => {
             <XAxis type="number" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNum} />
             <YAxis type="category" dataKey="song" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} width={80} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} formatter={(v) => formatNum(v)} />
-            <Bar dataKey="count" fill="#22c55e" name="挑战次数" radius={[0, 4, 4, 0]} />
+            <Bar dataKey="count" name="挑战次数" radius={[0, 4, 4, 0]}>
+              {dailyMultiData.map((entry, index) => <Cell key={`cell2-${index}`} fill={barColors[index % barColors.length]} />)}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -148,7 +154,9 @@ const Song = ({ currentRegion }) => {
             <XAxis type="number" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNum} />
             <YAxis type="category" dataKey="song" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} width={80} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} formatter={(v) => formatNum(v)} />
-            <Bar dataKey="count" fill="#f59e0b" name="挑战次数" radius={[0, 4, 4, 0]} />
+            <Bar dataKey="count" name="挑战次数" radius={[0, 4, 4, 0]}>
+              {weeklySingleData.map((entry, index) => <Cell key={`cell3-${index}`} fill={barColors[index % barColors.length]} />)}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -162,7 +170,9 @@ const Song = ({ currentRegion }) => {
             <XAxis type="number" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNum} />
             <YAxis type="category" dataKey="song" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} width={80} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} formatter={(v) => formatNum(v)} />
-            <Bar dataKey="count" fill="#8b5cf6" name="挑战次数" radius={[0, 4, 4, 0]} />
+            <Bar dataKey="count" name="挑战次数" radius={[0, 4, 4, 0]}>
+              {weeklyMultiData.map((entry, index) => <Cell key={`cell4-${index}`} fill={barColors[index % barColors.length]} />)}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>

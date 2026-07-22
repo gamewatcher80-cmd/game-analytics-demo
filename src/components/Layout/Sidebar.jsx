@@ -30,7 +30,7 @@ const menuGroups = [
       { id: 'gameplay-live-boost', label: '体力liveboost', icon: '⚡' },
       { id: 'gameplay-song', label: '关卡(曲目)', icon: '🎵' },
       { id: 'gameplay-performance', label: '演出', icon: '🎹' },
-      { id: 'gameplay-cultivate-member', label: '养成-角色', icon: '🌱' },
+      { id: 'gameplay-cultivate-member', label: '养成-角色评级', icon: '🌱' },
       { id: 'gameplay-cultivate-snapshot', label: '养成-成员/留影', icon: '📸' },
       { id: 'gameplay-cultivate-band', label: '养成-乐队强化', icon: '🎸' },
       { id: 'gameplay-story', label: '故事', icon: '📖' },

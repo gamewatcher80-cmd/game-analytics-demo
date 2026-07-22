@@ -6,7 +6,7 @@ const CultivateMember = ({ currentRegion }) => {
     endDate: new Date().toISOString().split('T')[0]
   });
 
-  // 每日角色养成情况（昨日，按 member_name 分组）
+  // 每日角色评级养成情况（昨日，按 member_name 分组）
   const memberCultivateData = [
     { name: '角色1', users: 18500, upgradeCount: 32600, totalLevel: 142800, avgLevel: 4.4 },
     { name: '角色2', users: 16200, upgradeCount: 28100, totalLevel: 118500, avgLevel: 4.2 },
@@ -16,12 +16,11 @@ const CultivateMember = ({ currentRegion }) => {
     { name: '角色6', users: 7200, upgradeCount: 12800, totalLevel: 51200, avgLevel: 4.0 },
   ];
 
-  // 角色升级原因细分（昨日，按 reason 分组）
+  // 每日角色评级升级原因细分（昨日，按 reason 分组）
   const reasonDistributionData = [
-    { reason: '原因1', users: 22000, count: 45000, ratio: 32.5, totalLevel: 198000, avgLevel: 4.4 },
-    { reason: '原因2', users: 18500, count: 38200, ratio: 27.6, totalLevel: 164200, avgLevel: 4.3 },
-    { reason: '原因3', users: 15800, count: 32600, ratio: 23.6, totalLevel: 137000, avgLevel: 4.2 },
-    { reason: '原因4', users: 12500, count: 22600, ratio: 16.3, totalLevel: 90400, avgLevel: 4.0 },
+    { reason: '原因1', users: 22000, count: 45000, ratio: 40.5, totalLevel: 198000, avgLevel: 4.4 },
+    { reason: '原因2', users: 18500, count: 38200, ratio: 34.4, totalLevel: 164200, avgLevel: 4.3 },
+    { reason: '原因3', users: 15800, count: 27800, ratio: 25.1, totalLevel: 116800, avgLevel: 4.2 },
   ];
 
   const formatNum = (num) => {
@@ -78,24 +77,24 @@ const CultivateMember = ({ currentRegion }) => {
         <h3 style={{ marginBottom: '12px', fontSize: '15px', fontWeight: '600', color: 'var(--primary)' }}>【计算逻辑】</h3>
         <div style={{ fontSize: '12px', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
           <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>角色名称</span> - 基于 <code>member_name</code></div>
-          <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>升级原因</span> - 基于 <code>reason</code></div>
+          <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>评级升级原因</span> - 基于 <code>reason</code></div>
           <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>养成人数</span> - 进行角色养成操作的去重玩家数</div>
-          <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>升级次数</span> - 基于 <code>member_op_flow</code> 事件次数</div>
-          <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>总提升等级</span> - 基于 <code>member_rank_level</code> 和 <code>member_before_rank_level</code> 进行计算</div>
+          <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>评级升级次数</span> - 基于 <code>member_op_flow</code> 事件次数</div>
+          <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>角色评级总提升等级</span> - 基于 <code>member_rank_level</code> 和 <code>member_before_rank_level</code> 进行计算</div>
           <div><span style={{ fontWeight: '600', color: 'var(--text-primary)' }}>单次平均提升等级</span> - 总提升等级 ÷ 升级次数</div>
         </div>
       </div>
 
-      {/* 1. 每日角色养成情况 */}
+      {/* 1. 每日角色评级养成情况 */}
       <div className="card" style={{ marginBottom: '20px' }}>
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日角色养成情况</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日角色评级养成情况</h3>
         <div style={{ overflow: 'auto', maxHeight: '500px' }}>
           <table>
             <thead>
               <tr>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>角色名称</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>养成人数</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>升级次数</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>评级升级次数</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>总提升等级</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>单次平均提升等级</th>
               </tr>
@@ -115,18 +114,18 @@ const CultivateMember = ({ currentRegion }) => {
         </div>
       </div>
 
-      {/* 2. 角色升级原因细分 */}
+      {/* 2. 每日角色评级升级原因细分 */}
       <div className="card">
-        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>角色升级原因细分</h3>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>每日角色评级升级原因细分</h3>
         <div style={{ overflow: 'auto', maxHeight: '500px' }}>
           <table>
             <thead>
               <tr>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>升级原因</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>评级升级原因</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>养成人数</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>升级次数</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>评级升级次数</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>次数占比</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>总提升等级</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>角色评级总提升等级</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>单次平均提升等级</th>
               </tr>
             </thead>

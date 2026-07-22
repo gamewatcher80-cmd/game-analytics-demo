@@ -70,7 +70,7 @@ const pageTitles = {
   'gameplay-player-level': '玩家人物等级',
   'gameplay-live-boost': '体力liveboost',
   'gameplay-song': '关卡(曲目)',
-  'gameplay-cultivate-member': '养成-角色',
+  'gameplay-cultivate-member': '养成-角色评级',
   'gameplay-cultivate-snapshot': '养成-成员/留影',
   'gameplay-cultivate-band': '养成-乐队强化',
   'gameplay-performance': '演出',

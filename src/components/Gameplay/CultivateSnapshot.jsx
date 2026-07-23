@@ -8,24 +8,28 @@ const CultivateSnapshot = ({ currentRegion }) => {
 
   // 成员卡持有情况（昨日，card_type=1）
   const memberCardData = [
-    { id: 'ID-1', rarity: '★★★★', name: 'ID-1', holdCount: 38500, holdRate: 28.5 },
-    { id: 'ID-2', rarity: '★★★★', name: 'ID-2', holdCount: 32200, holdRate: 23.8 },
-    { id: 'ID-3', rarity: '★★★', name: 'ID-3', holdCount: 45800, holdRate: 33.9 },
-    { id: 'ID-4', rarity: '★★★', name: 'ID-4', holdCount: 28600, holdRate: 21.2 },
-    { id: 'ID-5', rarity: '★★', name: 'ID-5', holdCount: 52400, holdRate: 38.8 },
-    { id: 'ID-6', rarity: '★★', name: 'ID-6', holdCount: 41200, holdRate: 30.5 },
-    { id: 'ID-7', rarity: '★', name: 'ID-7', holdCount: 68500, holdRate: 50.7 },
+    { id: 'ID-1', rarity: 'SSR', name: 'ID-1', holdCount: 8500, holdRate: 6.3 },
+    { id: 'ID-2', rarity: 'SSR', name: 'ID-2', holdCount: 7200, holdRate: 5.3 },
+    { id: 'ID-3', rarity: 'BD', name: 'ID-3', holdCount: 15800, holdRate: 11.7 },
+    { id: 'ID-4', rarity: 'BD', name: 'ID-4', holdCount: 18600, holdRate: 13.8 },
+    { id: 'ID-5', rarity: 'SR', name: 'ID-5', holdCount: 32400, holdRate: 24.0 },
+    { id: 'ID-6', rarity: 'SR', name: 'ID-6', holdCount: 41200, holdRate: 30.5 },
+    { id: 'ID-7', rarity: 'R', name: 'ID-7', holdCount: 68500, holdRate: 50.7 },
   ];
 
   // 留影卡持有情况（昨日，card_type=2）
   const photoCardData = [
-    { id: 'ID-1', rarity: '★★★★', name: 'ID-1', holdCount: 18600, holdRate: 13.8 },
-    { id: 'ID-2', rarity: '★★★★', name: 'ID-2', holdCount: 15200, holdRate: 11.3 },
-    { id: 'ID-3', rarity: '★★★', name: 'ID-3', holdCount: 24800, holdRate: 18.4 },
-    { id: 'ID-4', rarity: '★★★', name: 'ID-4', holdCount: 12500, holdRate: 9.3 },
-    { id: 'ID-5', rarity: '★★', name: 'ID-5', holdCount: 28500, holdRate: 21.1 },
+    { id: 'ID-1', rarity: 'SSR', name: 'ID-1', holdCount: 3600, holdRate: 2.7 },
+    { id: 'ID-2', rarity: 'BD', name: 'ID-2', holdCount: 8200, holdRate: 6.1 },
+    { id: 'ID-3', rarity: 'BD', name: 'ID-3', holdCount: 12500, holdRate: 9.3 },
+    { id: 'ID-4', rarity: 'SR', name: 'ID-4', holdCount: 24800, holdRate: 18.4 },
+    { id: 'ID-5', rarity: 'R', name: 'ID-5', holdCount: 38500, holdRate: 28.5 },
   ];
 
+  const getRarityColor = (rarity) => {
+    const map = { SSR: '#f59e0b', BD: '#8b5cf6', SR: '#3b82f6', R: '#22c55e' };
+    return map[rarity] || '#94a3b8';
+  };
   const formatNum = (num) => {
     if (num >= 10000) return (num / 10000).toFixed(1) + '万';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
@@ -117,7 +121,7 @@ const CultivateSnapshot = ({ currentRegion }) => {
               {memberCardData.map((item, index) => (
                 <tr key={index}>
                   <td style={{ fontSize: '12px' }}>{item.id}</td>
-                  <td style={{ fontSize: '12px', color: '#f59e0b' }}>{item.rarity}</td>
+                  <td style={{ fontSize: '12px', color: getRarityColor(item.rarity), fontWeight: '600' }}>{item.rarity}</td>
                   <td style={{ fontSize: '12px' }}>{item.name}</td>
                   <td style={{ fontSize: '12px' }}>{formatNum(item.holdCount)}</td>
                   <td style={{ fontSize: '12px' }}>{item.holdRate}%</td>
@@ -146,7 +150,7 @@ const CultivateSnapshot = ({ currentRegion }) => {
               {photoCardData.map((item, index) => (
                 <tr key={index}>
                   <td style={{ fontSize: '12px' }}>{item.id}</td>
-                  <td style={{ fontSize: '12px', color: '#f59e0b' }}>{item.rarity}</td>
+                  <td style={{ fontSize: '12px', color: getRarityColor(item.rarity), fontWeight: '600' }}>{item.rarity}</td>
                   <td style={{ fontSize: '12px' }}>{item.name}</td>
                   <td style={{ fontSize: '12px' }}>{formatNum(item.holdCount)}</td>
                   <td style={{ fontSize: '12px' }}>{item.holdRate}%</td>

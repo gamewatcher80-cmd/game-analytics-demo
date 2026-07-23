@@ -26,6 +26,26 @@ const CultivateSnapshot = ({ currentRegion }) => {
     { id: 'p-ID-5', rarity: 'R', name: '留影卡E', holdCount: 38500, holdRate: 28.5 },
   ];
 
+  // 成员卡养成情况（昨日）
+  const memberCultivateData = [
+    { id: 'm-ID-1', rarity: 'SSR', name: '成员卡A', lvEnhance: 5.2, specialTrain: 3.8, skillEnhance: 4.5, awaken: 2.1 },
+    { id: 'm-ID-2', rarity: 'SSR', name: '成员卡B', lvEnhance: 4.8, specialTrain: 3.5, skillEnhance: 4.2, awaken: 1.9 },
+    { id: 'm-ID-3', rarity: 'BD', name: '成员卡C', lvEnhance: 6.5, specialTrain: 4.2, skillEnhance: 5.1, awaken: 2.8 },
+    { id: 'm-ID-4', rarity: 'BD', name: '成员卡D', lvEnhance: 7.2, specialTrain: 4.8, skillEnhance: 5.6, awaken: 3.1 },
+    { id: 'm-ID-5', rarity: 'SR', name: '成员卡E', lvEnhance: 5.8, specialTrain: 3.2, skillEnhance: 4.0, awaken: 1.6 },
+    { id: 'm-ID-6', rarity: 'SR', name: '成员卡F', lvEnhance: 6.2, specialTrain: 3.6, skillEnhance: 4.3, awaken: 1.8 },
+    { id: 'm-ID-7', rarity: 'R', name: '成员卡G', lvEnhance: 4.5, specialTrain: 2.1, skillEnhance: 3.2, awaken: 1.2 },
+  ];
+
+  // 留影卡养成情况（昨日）
+  const photoCultivateData = [
+    { id: 'p-ID-1', rarity: 'SSR', name: '留影卡A', lvEnhance: 4.5, upperUnlock: 2.8 },
+    { id: 'p-ID-2', rarity: 'BD', name: '留影卡B', lvEnhance: 5.2, upperUnlock: 3.2 },
+    { id: 'p-ID-3', rarity: 'BD', name: '留影卡C', lvEnhance: 5.8, upperUnlock: 3.5 },
+    { id: 'p-ID-4', rarity: 'SR', name: '留影卡D', lvEnhance: 4.2, upperUnlock: 2.5 },
+    { id: 'p-ID-5', rarity: 'R', name: '留影卡E', lvEnhance: 3.5, upperUnlock: 2.1 },
+  ];
+
   const getRarityColor = (rarity) => {
     const map = { SSR: '#f59e0b', BD: '#8b5cf6', SR: '#3b82f6', R: '#22c55e' };
     return map[rarity] || '#94a3b8';
@@ -166,39 +186,65 @@ const CultivateSnapshot = ({ currentRegion }) => {
         </div>
       </div>
 
-      {/* 3. 成员卡养成情况（占位） */}
+      {/* 3. 成员卡养成情况 */}
       <div className="card" style={{ marginBottom: '20px' }}>
         <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>成员卡养成情况</h3>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px 20px',
-          color: 'var(--text-secondary)',
-          fontSize: '13px',
-          background: 'var(--bg-primary)',
-          borderRadius: '8px',
-          minHeight: '120px'
-        }}>
-          📋 等待用户确认展现形式后再补充表格内容
+        <div style={{ overflow: 'auto', maxHeight: '500px' }}>
+          <table>
+            <thead>
+              <tr>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>成员卡ID</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>成员卡品质</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>成员卡名称</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均Lv强化</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均特训</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均技能Lv强化</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均觉醒</th>
+              </tr>
+            </thead>
+            <tbody>
+              {memberCultivateData.map((item, index) => (
+                <tr key={index}>
+                  <td style={{ fontSize: '12px' }}>{item.id}</td>
+                  <td style={{ fontSize: '12px', color: getRarityColor(item.rarity), fontWeight: '600' }}>{item.rarity}</td>
+                  <td style={{ fontSize: '12px' }}>{item.name}</td>
+                  <td style={{ fontSize: '12px' }}>{item.lvEnhance.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.specialTrain.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.skillEnhance.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.awaken.toFixed(1)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      {/* 4. 留影卡养成情况（占位） */}
+      {/* 4. 留影卡养成情况 */}
       <div className="card">
         <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>留影卡养成情况</h3>
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '40px 20px',
-          color: 'var(--text-secondary)',
-          fontSize: '13px',
-          background: 'var(--bg-primary)',
-          borderRadius: '8px',
-          minHeight: '120px'
-        }}>
-          📋 等待用户确认展现形式后再补充表格内容
+        <div style={{ overflow: 'auto', maxHeight: '500px' }}>
+          <table>
+            <thead>
+              <tr>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>留影卡ID</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>留影卡品质</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>留影卡名称</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均Lv强化</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均上限解锁</th>
+              </tr>
+            </thead>
+            <tbody>
+              {photoCultivateData.map((item, index) => (
+                <tr key={index}>
+                  <td style={{ fontSize: '12px' }}>{item.id}</td>
+                  <td style={{ fontSize: '12px', color: getRarityColor(item.rarity), fontWeight: '600' }}>{item.rarity}</td>
+                  <td style={{ fontSize: '12px' }}>{item.name}</td>
+                  <td style={{ fontSize: '12px' }}>{item.lvEnhance.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.upperUnlock.toFixed(1)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

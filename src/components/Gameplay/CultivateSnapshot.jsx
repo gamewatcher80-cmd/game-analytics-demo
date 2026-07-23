@@ -8,22 +8,22 @@ const CultivateSnapshot = ({ currentRegion }) => {
 
   // 成员卡持有情况（昨日，card_type=1）
   const memberCardData = [
-    { id: 'ID-1', rarity: 'SSR', name: 'ID-1', holdCount: 8500, holdRate: 6.3 },
-    { id: 'ID-2', rarity: 'SSR', name: 'ID-2', holdCount: 7200, holdRate: 5.3 },
-    { id: 'ID-3', rarity: 'BD', name: 'ID-3', holdCount: 15800, holdRate: 11.7 },
-    { id: 'ID-4', rarity: 'BD', name: 'ID-4', holdCount: 18600, holdRate: 13.8 },
-    { id: 'ID-5', rarity: 'SR', name: 'ID-5', holdCount: 32400, holdRate: 24.0 },
-    { id: 'ID-6', rarity: 'SR', name: 'ID-6', holdCount: 41200, holdRate: 30.5 },
-    { id: 'ID-7', rarity: 'R', name: 'ID-7', holdCount: 68500, holdRate: 50.7 },
+    { id: 'm-ID-1', rarity: 'SSR', name: '成员卡A', holdCount: 8500, holdRate: 6.3 },
+    { id: 'm-ID-2', rarity: 'SSR', name: '成员卡B', holdCount: 7200, holdRate: 5.3 },
+    { id: 'm-ID-3', rarity: 'BD', name: '成员卡C', holdCount: 15800, holdRate: 11.7 },
+    { id: 'm-ID-4', rarity: 'BD', name: '成员卡D', holdCount: 18600, holdRate: 13.8 },
+    { id: 'm-ID-5', rarity: 'SR', name: '成员卡E', holdCount: 32400, holdRate: 24.0 },
+    { id: 'm-ID-6', rarity: 'SR', name: '成员卡F', holdCount: 41200, holdRate: 30.5 },
+    { id: 'm-ID-7', rarity: 'R', name: '成员卡G', holdCount: 68500, holdRate: 50.7 },
   ];
 
   // 留影卡持有情况（昨日，card_type=2）
   const photoCardData = [
-    { id: 'ID-1', rarity: 'SSR', name: 'ID-1', holdCount: 3600, holdRate: 2.7 },
-    { id: 'ID-2', rarity: 'BD', name: 'ID-2', holdCount: 8200, holdRate: 6.1 },
-    { id: 'ID-3', rarity: 'BD', name: 'ID-3', holdCount: 12500, holdRate: 9.3 },
-    { id: 'ID-4', rarity: 'SR', name: 'ID-4', holdCount: 24800, holdRate: 18.4 },
-    { id: 'ID-5', rarity: 'R', name: 'ID-5', holdCount: 38500, holdRate: 28.5 },
+    { id: 'p-ID-1', rarity: 'SSR', name: '留影卡A', holdCount: 3600, holdRate: 2.7 },
+    { id: 'p-ID-2', rarity: 'BD', name: '留影卡B', holdCount: 8200, holdRate: 6.1 },
+    { id: 'p-ID-3', rarity: 'BD', name: '留影卡C', holdCount: 12500, holdRate: 9.3 },
+    { id: 'p-ID-4', rarity: 'SR', name: '留影卡D', holdCount: 24800, holdRate: 18.4 },
+    { id: 'p-ID-5', rarity: 'R', name: '留影卡E', holdCount: 38500, holdRate: 28.5 },
   ];
 
   const getRarityColor = (rarity) => {

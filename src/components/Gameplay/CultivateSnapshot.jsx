@@ -121,8 +121,7 @@ const CultivateSnapshot = ({ currentRegion }) => {
           </div>
           <div style={{ color: 'var(--text-primary)', fontWeight: '600', margin: '12px 0 4px 0' }}>持有量计算规则</div>
           <div style={{ paddingLeft: '12px' }}>
-            <div>成员卡不会持有多个相同卡片；留影卡会持有多个相同卡片</div>
-            <div>计算总持有量时，存在持有多卡情况，持有量只按 +1 计算</div>
+            <div>计算总持有量时，可能存在持有多卡情况，持有量只按 +1 计算</div>
           </div>
           <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border-color)' }}>数据来源: <code>card_op_flow</code>、<code>card_flow</code>、<code>card_snapshot(card_info)</code></div>
         </div>

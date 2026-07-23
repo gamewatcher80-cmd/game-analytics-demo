@@ -28,22 +28,22 @@ const CultivateSnapshot = ({ currentRegion }) => {
 
   // 成员卡养成情况（昨日）
   const memberCultivateData = [
-    { id: 'm-ID-1', rarity: 'SSR', name: '成员卡A', lvEnhance: 5.2, specialTrain: 3.8, skillEnhance: 4.5, awaken: 2.1 },
-    { id: 'm-ID-2', rarity: 'SSR', name: '成员卡B', lvEnhance: 4.8, specialTrain: 3.5, skillEnhance: 4.2, awaken: 1.9 },
-    { id: 'm-ID-3', rarity: 'BD', name: '成员卡C', lvEnhance: 6.5, specialTrain: 4.2, skillEnhance: 5.1, awaken: 2.8 },
-    { id: 'm-ID-4', rarity: 'BD', name: '成员卡D', lvEnhance: 7.2, specialTrain: 4.8, skillEnhance: 5.6, awaken: 3.1 },
-    { id: 'm-ID-5', rarity: 'SR', name: '成员卡E', lvEnhance: 5.8, specialTrain: 3.2, skillEnhance: 4.0, awaken: 1.6 },
-    { id: 'm-ID-6', rarity: 'SR', name: '成员卡F', lvEnhance: 6.2, specialTrain: 3.6, skillEnhance: 4.3, awaken: 1.8 },
-    { id: 'm-ID-7', rarity: 'R', name: '成员卡G', lvEnhance: 4.5, specialTrain: 2.1, skillEnhance: 3.2, awaken: 1.2 },
+    { id: 'm-ID-1', rarity: 'SSR', name: '成员卡A', lvEnhance: 5.2, specialTrain: 3.8, skillLink: 4.5, skillLive: 5.0, skillGekisou: 4.0, awaken: 2.1 },
+    { id: 'm-ID-2', rarity: 'SSR', name: '成员卡B', lvEnhance: 4.8, specialTrain: 3.5, skillLink: 4.2, skillLive: 4.8, skillGekisou: 3.5, awaken: 1.9 },
+    { id: 'm-ID-3', rarity: 'BD', name: '成员卡C', lvEnhance: 6.5, specialTrain: 4.2, skillLink: 5.1, skillLive: 5.5, skillGekisou: 4.8, awaken: 2.8 },
+    { id: 'm-ID-4', rarity: 'BD', name: '成员卡D', lvEnhance: 7.2, specialTrain: 4.8, skillLink: 5.6, skillLive: 5.8, skillGekisou: 5.2, awaken: 3.1 },
+    { id: 'm-ID-5', rarity: 'SR', name: '成员卡E', lvEnhance: 5.8, specialTrain: 3.2, skillLink: 4.0, skillLive: 4.2, skillGekisou: 3.5, awaken: 1.6 },
+    { id: 'm-ID-6', rarity: 'SR', name: '成员卡F', lvEnhance: 6.2, specialTrain: 3.6, skillLink: 4.3, skillLive: 4.5, skillGekisou: 3.8, awaken: 1.8 },
+    { id: 'm-ID-7', rarity: 'R', name: '成员卡G', lvEnhance: 4.5, specialTrain: 2.1, skillLink: 3.2, skillLive: 3.5, skillGekisou: 2.8, awaken: 1.2 },
   ];
 
   // 留影卡养成情况（昨日）
   const photoCultivateData = [
-    { id: 'p-ID-1', rarity: 'SSR', name: '留影卡A', lvEnhance: 4.5, upperUnlock: 2.8 },
-    { id: 'p-ID-2', rarity: 'BD', name: '留影卡B', lvEnhance: 5.2, upperUnlock: 3.2 },
-    { id: 'p-ID-3', rarity: 'BD', name: '留影卡C', lvEnhance: 5.8, upperUnlock: 3.5 },
-    { id: 'p-ID-4', rarity: 'SR', name: '留影卡D', lvEnhance: 4.2, upperUnlock: 2.5 },
-    { id: 'p-ID-5', rarity: 'R', name: '留影卡E', lvEnhance: 3.5, upperUnlock: 2.1 },
+    { id: 'p-ID-1', rarity: 'SSR', name: '留影卡A', lvEnhance: 4.5, skillLive: 4.2, skillGekisou: 3.8, upperUnlock: 2.8 },
+    { id: 'p-ID-2', rarity: 'BD', name: '留影卡B', lvEnhance: 5.2, skillLive: 4.8, skillGekisou: 4.5, upperUnlock: 3.2 },
+    { id: 'p-ID-3', rarity: 'BD', name: '留影卡C', lvEnhance: 5.8, skillLive: 5.2, skillGekisou: 4.8, upperUnlock: 3.5 },
+    { id: 'p-ID-4', rarity: 'SR', name: '留影卡D', lvEnhance: 4.2, skillLive: 3.8, skillGekisou: 3.5, upperUnlock: 2.5 },
+    { id: 'p-ID-5', rarity: 'R', name: '留影卡E', lvEnhance: 3.5, skillLive: 3.2, skillGekisou: 2.8, upperUnlock: 2.1 },
   ];
 
   const getRarityColor = (rarity) => {
@@ -118,6 +118,22 @@ const CultivateSnapshot = ({ currentRegion }) => {
             <div><span style={{ fontWeight: '600' }}>留影卡名称</span> - 基于 <code>card_type=2</code> 情况下的 <code>card_name</code></div>
             <div><span style={{ fontWeight: '600' }}>活跃用户持有数量</span> - 基于DAU持有指定留影卡用户的数量</div>
             <div><span style={{ fontWeight: '600' }}>活跃用户持有率</span> - 基于DAU持有指定留影卡用户的比例</div>
+          </div>
+          <div style={{ color: 'var(--text-primary)', fontWeight: '600', margin: '12px 0 4px 0' }}>成员卡养成指标 (card_type = 1)</div>
+          <div style={{ paddingLeft: '12px' }}>
+            <div><span style={{ fontWeight: '600' }}>平均Lv强化</span> - 基于 <code>card_type=1</code> 情况下的 <code>level</code></div>
+            <div><span style={{ fontWeight: '600' }}>平均特训</span> - 基于 <code>card_type=1</code> 情况下的 <code>train_level</code></div>
+            <div><span style={{ fontWeight: '600' }}>平均队长技能</span> - 基于 <code>card_type=1</code> 情况下的 <code>skill_level_link</code></div>
+            <div><span style={{ fontWeight: '600' }}>平均演出技能</span> - 基于 <code>card_type=1</code> 情况下的 <code>skill_level_live</code></div>
+            <div><span style={{ fontWeight: '600' }}>平均激奏技能</span> - 基于 <code>card_type=1</code> 情况下的 <code>skill_level_gekisou</code></div>
+            <div><span style={{ fontWeight: '600' }}>平均觉醒</span> - 基于 <code>card_type=1</code> 情况下的 <code>awaken_level</code></div>
+          </div>
+          <div style={{ color: 'var(--text-primary)', fontWeight: '600', margin: '12px 0 4px 0' }}>留影卡养成指标 (card_type = 2)</div>
+          <div style={{ paddingLeft: '12px' }}>
+            <div><span style={{ fontWeight: '600' }}>平均Lv强化</span> - 基于 <code>card_type=2</code> 情况下的 <code>level</code></div>
+            <div><span style={{ fontWeight: '600' }}>平均演出支援Lv</span> - 基于 <code>card_type=2</code> 情况下的 <code>skill_level_live</code></div>
+            <div><span style={{ fontWeight: '600' }}>平均激奏支援Lv</span> - 基于 <code>card_type=2</code> 情况下的 <code>skill_level_gekisou</code></div>
+            <div><span style={{ fontWeight: '600' }}>平均上限解锁</span> - 基于 <code>card_type=2</code> 情况下的 <code>awaken_level</code></div>
           </div>
           <div style={{ color: 'var(--text-primary)', fontWeight: '600', margin: '12px 0 4px 0' }}>持有量计算规则</div>
           <div style={{ paddingLeft: '12px' }}>
@@ -197,7 +213,9 @@ const CultivateSnapshot = ({ currentRegion }) => {
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>成员卡名称</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均Lv强化</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均特训</th>
-                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均技能Lv强化</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均队长技能</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均演出技能</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均激奏技能</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均觉醒</th>
               </tr>
             </thead>
@@ -209,7 +227,9 @@ const CultivateSnapshot = ({ currentRegion }) => {
                   <td style={{ fontSize: '12px' }}>{item.name}</td>
                   <td style={{ fontSize: '12px' }}>{item.lvEnhance.toFixed(1)}</td>
                   <td style={{ fontSize: '12px' }}>{item.specialTrain.toFixed(1)}</td>
-                  <td style={{ fontSize: '12px' }}>{item.skillEnhance.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.skillLink.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.skillLive.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.skillGekisou.toFixed(1)}</td>
                   <td style={{ fontSize: '12px' }}>{item.awaken.toFixed(1)}</td>
                 </tr>
               ))}
@@ -229,6 +249,8 @@ const CultivateSnapshot = ({ currentRegion }) => {
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>留影卡品质</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>留影卡名称</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均Lv强化</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均演出支援Lv</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均激奏支援Lv</th>
                 <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>平均上限解锁</th>
               </tr>
             </thead>
@@ -239,6 +261,8 @@ const CultivateSnapshot = ({ currentRegion }) => {
                   <td style={{ fontSize: '12px', color: getRarityColor(item.rarity), fontWeight: '600' }}>{item.rarity}</td>
                   <td style={{ fontSize: '12px' }}>{item.name}</td>
                   <td style={{ fontSize: '12px' }}>{item.lvEnhance.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.skillLive.toFixed(1)}</td>
+                  <td style={{ fontSize: '12px' }}>{item.skillGekisou.toFixed(1)}</td>
                   <td style={{ fontSize: '12px' }}>{item.upperUnlock.toFixed(1)}</td>
                 </tr>
               ))}

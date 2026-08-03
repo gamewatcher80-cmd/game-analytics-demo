@@ -8,6 +8,7 @@ import EventEffect from './components/Analysis/EventEffect';
 import Retention from './components/Analysis/Retention';
 import PurchaseFunnel from './components/Commercial/PurchaseFunnel';
 import RegionComparison from './components/Region/RegionComparison';
+import CountryComparison from './components/Region/CountryComparison';
 // 新增页面组件
 import RealtimeData from './components/Analysis/RealtimeData';
 import DailyData from './components/Analysis/DailyData';
@@ -86,6 +87,7 @@ const pageTitles = {
       retention: '留存分析',
       funnel: '付费漏斗',
       region: '服务器对比',
+      'region-country': '地区对比',
       'cn-user': '简中用户',
 };
 
@@ -174,6 +176,8 @@ function App() {
         return <PurchaseFunnel />;
       case 'region':
         return <RegionComparison />;
+      case 'region-country':
+        return <CountryComparison />;
       case 'cn-user':
         return <SimplifiedCNUser currentRegion={currentRegion} />;
       default:

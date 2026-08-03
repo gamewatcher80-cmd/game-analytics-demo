@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const ShopExpansion = ({ currentRegion }) => {
   const [dateRange, setDateRange] = useState({
@@ -7,16 +7,22 @@ const ShopExpansion = ({ currentRegion }) => {
     endDate: new Date().toISOString().split('T')[0]
   });
 
-  // 生成30天扩张数据（人数 ≤ 次数，一人可扩张多次）
+  // 生成30天扩张数据（3种扩张类型：店铺/保险箱/仓库，人数 ≤ 次数）
   const generateExpansionData = () => {
     return Array.from({ length: 30 }, (_, i) => {
       const date = new Date();
       date.setDate(date.getDate() - (29 - i));
-      const userCount = Math.floor(1200 + Math.random() * 2800);
+      const shopUser = Math.floor(1200 + Math.random() * 2800);
+      const safeUser = Math.floor(200 + Math.random() * 600);
+      const warehouseUser = Math.floor(300 + Math.random() * 700);
       return {
         date: date.toISOString().split('T')[0],
-        userCount,
-        expansionCount: Math.floor(userCount * (1.2 + Math.random() * 1.3)),
+        shopUser,
+        shopExpansion: Math.floor(shopUser * (1.2 + Math.random() * 1.3)),
+        safeUser,
+        safeExpansion: Math.floor(safeUser * (1.2 + Math.random() * 1.3)),
+        warehouseUser,
+        warehouseExpansion: Math.floor(warehouseUser * (1.2 + Math.random() * 1.3)),
       };
     });
   };
@@ -83,7 +89,10 @@ const ShopExpansion = ({ currentRegion }) => {
             <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Line type="monotone" dataKey="userCount" stroke="#3b82f6" strokeWidth={2} name="扩张人数" dot={false} />
+            <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
+            <Line type="monotone" dataKey="shopUser" stroke="#3b82f6" strokeWidth={2} name="店铺扩张" dot={false} />
+            <Line type="monotone" dataKey="safeUser" stroke="#22c55e" strokeWidth={2} name="保险箱扩张" dot={false} />
+            <Line type="monotone" dataKey="warehouseUser" stroke="#f59e0b" strokeWidth={2} name="仓库扩张" dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -97,7 +106,10 @@ const ShopExpansion = ({ currentRegion }) => {
             <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <YAxis stroke="var(--text-muted)" fontSize={12} tick={{fill: 'var(--text-muted)'}} />
             <Tooltip contentStyle={customTooltipStyle} labelStyle={{color: 'var(--text-primary)'}} />
-            <Line type="monotone" dataKey="expansionCount" stroke="#22c55e" strokeWidth={2} name="扩张次数" dot={false} />
+            <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
+            <Line type="monotone" dataKey="shopExpansion" stroke="#3b82f6" strokeWidth={2} name="店铺扩张" dot={false} />
+            <Line type="monotone" dataKey="safeExpansion" stroke="#22c55e" strokeWidth={2} name="保险箱扩张" dot={false} />
+            <Line type="monotone" dataKey="warehouseExpansion" stroke="#f59e0b" strokeWidth={2} name="仓库扩张" dot={false} />
           </LineChart>
         </ResponsiveContainer>
       </div>

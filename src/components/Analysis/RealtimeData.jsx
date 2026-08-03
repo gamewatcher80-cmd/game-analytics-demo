@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import KPICard from '../Dashboard/KPICard';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const RealtimeData = ({ currentRegion }) => {
   const [dateRange, setDateRange] = useState({
@@ -85,6 +85,29 @@ const RealtimeData = ({ currentRegion }) => {
     if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
     return num.toString();
   };
+
+  // 按服务器分区的实时数据（24小时）
+  // 港澳台=b_area_id=2, 欧美=b_area_id=3, 韩国=b_area_id=4
+  const serverRealtimeData = Array.from({ length: 24 }, (_, i) => {
+    const hour = String(i).padStart(2, '0') + ':00';
+    // 基于全量 hourlyData 模拟分服务器数据
+    const base = hourlyData[i];
+    return {
+      hour,
+      // 活跃账号
+      twActive: Math.floor(base.active * 0.25 + Math.random() * 300),
+      enActive: Math.floor(base.active * 0.55 + Math.random() * 400),
+      krActive: Math.floor(base.active * 0.20 + Math.random() * 200),
+      // 活跃设备
+      twActiveDevice: Math.floor(base.activeDevice * 0.25 + Math.random() * 280),
+      enActiveDevice: Math.floor(base.activeDevice * 0.55 + Math.random() * 380),
+      krActiveDevice: Math.floor(base.activeDevice * 0.20 + Math.random() * 200),
+      // 新增账号
+      twNew: Math.floor(base.new * 0.20 + Math.random() * 20),
+      enNew: Math.floor(base.new * 0.55 + Math.random() * 30),
+      krNew: Math.floor(base.new * 0.25 + Math.random() * 20),
+    };
+  });
 
   return (
     <div style={{ padding: '24px' }}>
@@ -265,6 +288,78 @@ const RealtimeData = ({ currentRegion }) => {
                   <td style={{ fontSize: '12px', lineHeight: '1.4' }}>{item.payActive.toLocaleString()}</td>
                   <td style={{ fontSize: '12px', lineHeight: '1.4' }}>{item.newPayUser.toLocaleString()}</td>
                   <td style={{ fontSize: '12px', lineHeight: '1.4' }}>{item.firstPayUser.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* 实时数据图表 - 按服务器（b_area_id 区分） */}
+      <div className="card" style={{ marginTop: '20px' }}>
+        <h3 style={{ marginBottom: '6px', fontSize: '16px', fontWeight: '600' }}>实时数据图表(按服务器)</h3>
+        <p style={{ marginBottom: '16px', fontSize: '11px', color: 'var(--text-muted)' }}>
+          b_area_id: 2-港澳台, 3-欧美, 4-韩国
+        </p>
+        <ResponsiveContainer width="100%" height={320}>
+          <LineChart data={serverRealtimeData} margin={{ top: 10, right: 30, left: 20, bottom: 10 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+            <XAxis dataKey="hour" stroke="var(--text-muted)" fontSize={11} tick={{fill: 'var(--text-muted)'}} />
+            <YAxis yAxisId="left" stroke="var(--text-muted)" fontSize={11} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNumber} />
+            <YAxis yAxisId="right" orientation="right" stroke="var(--text-muted)" fontSize={11} tick={{fill: 'var(--text-muted)'}} tickFormatter={formatNumber} />
+            <Tooltip
+              contentStyle={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '8px',
+                padding: '12px'
+              }}
+              labelStyle={{ color: 'var(--text-primary)' }}
+              formatter={(v) => v.toLocaleString()}
+            />
+            <Legend wrapperStyle={{ color: 'var(--text-secondary)', fontSize: '12px' }} />
+            <Line yAxisId="left" type="monotone" dataKey="twActive" stroke="#3b82f6" strokeWidth={2} name="活跃账号-港澳台" dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="enActive" stroke="#22c55e" strokeWidth={2} name="活跃账号-欧美" dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="krActive" stroke="#ef4444" strokeWidth={2} name="活跃账号-韩国" dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="twNew" stroke="#60a5fa" strokeWidth={2} strokeDasharray="5 5" name="新增账号-港澳台" dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="enNew" stroke="#86efac" strokeWidth={2} strokeDasharray="5 5" name="新增账号-欧美" dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="krNew" stroke="#fca5a5" strokeWidth={2} strokeDasharray="5 5" name="新增账号-韩国" dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 实时数据明细表 - 按服务器 */}
+      <div className="card" style={{ marginTop: '20px' }}>
+        <h3 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>实时数据明细表(按服务器)</h3>
+        <div style={{ overflow: 'auto', maxHeight: '500px' }}>
+          <table>
+            <thead>
+              <tr>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>日期</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>活跃账号-港澳台</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>活跃账号-韩国</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>活跃账号-欧美</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>活跃设备-港澳台</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>活跃设备-韩国</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>活跃设备-欧美</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>新增账号-港澳台</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>新增账号-韩国</th>
+                <th style={{ fontSize: '12px', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>新增账号-欧美</th>
+              </tr>
+            </thead>
+            <tbody>
+              {serverRealtimeData.map((item, index) => (
+                <tr key={index}>
+                  <td style={{ fontSize: '12px' }}>{item.hour}</td>
+                  <td style={{ fontSize: '12px' }}>{item.twActive.toLocaleString()}</td>
+                  <td style={{ fontSize: '12px' }}>{item.krActive.toLocaleString()}</td>
+                  <td style={{ fontSize: '12px' }}>{item.enActive.toLocaleString()}</td>
+                  <td style={{ fontSize: '12px' }}>{item.twActiveDevice.toLocaleString()}</td>
+                  <td style={{ fontSize: '12px' }}>{item.krActiveDevice.toLocaleString()}</td>
+                  <td style={{ fontSize: '12px' }}>{item.enActiveDevice.toLocaleString()}</td>
+                  <td style={{ fontSize: '12px' }}>{item.twNew.toLocaleString()}</td>
+                  <td style={{ fontSize: '12px' }}>{item.krNew.toLocaleString()}</td>
+                  <td style={{ fontSize: '12px' }}>{item.enNew.toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

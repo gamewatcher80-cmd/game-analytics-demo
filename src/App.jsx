@@ -85,7 +85,7 @@ const pageTitles = {
       event: '活动效果分析',
       retention: '留存分析',
       funnel: '付费漏斗',
-      region: '地区对比',
+      region: '服务器对比',
       'cn-user': '简中用户',
 };
 

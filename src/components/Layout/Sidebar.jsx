@@ -9,7 +9,7 @@ const menuGroups = [
       { id: 'daily', label: '每日数据', icon: '📅' },
       { id: 'weekly', label: '每周数据', icon: '📆' },
       { id: 'monthly', label: '每月数据', icon: '🗓️' },
-      { id: 'region', label: '地区对比', icon: '🌍' },
+      { id: 'region', label: '服务器对比', icon: '🌍' },
       { id: 'cn-user', label: '简中用户', icon: '🇨🇳' },
       { id: 'active', label: '活跃', icon: '🔥' },
       { id: 'retention-new', label: '留存', icon: '🧡' },
